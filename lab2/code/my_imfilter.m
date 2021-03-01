@@ -29,3 +29,13 @@ function output = my_imfilter(image, filter)
 %%
 % FILL THIS WITH YOUR CODE
 %%
+[img_height, img_width, ~] = size(image);
+[filter_height, filter_width, ~] = size(filter);
+
+fft_image = fft2(image,img_height+filter_height,img_width+filter_width);
+fft_kernel = fft2(filter,img_height+filter_height,img_width+filter_width);
+output = ifft2(fft_image .* fft_kernel);
+h_shift = (filter_width-1)/2+1;
+v_shift = (filter_height-1)/2+1;
+output = output(v_shift:(v_shift+img_height-1),h_shift:(h_shift+img_width-1),:);
+end

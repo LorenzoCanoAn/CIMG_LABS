@@ -17,7 +17,7 @@ imshow(test_image)
 
 %% Identify filter
 %This filter should do nothing regardless of the padding method you use.
-identity_filter = [x x x; x x x; x x x];
+identity_filter = [0,0,0; 0,1,0; 0,0,0];
 
 identity_image  = my_imfilter(test_image, identity_filter);
 
@@ -27,10 +27,10 @@ imwrite(identity_image, strcat('../data/', picture_name, '/identity_image.jpg'),
 
 %% Small blur with a box filter
 %This filter should remove some high frequencies
-blur_filter = ;
+blur_filter = ones(5,5);
 
 %make the filter sum to 1
-blur_filter = ;
+blur_filter = blur_filter/25;
 
 blur_image = my_imfilter(test_image, blur_filter);
 
@@ -40,7 +40,7 @@ imwrite(blur_image, strcat('../data/', picture_name, '/blur_image.jpg'), 'qualit
 
 %% Large blur
 %Create a large gaussian kernel, rememver the function fspecial
-large_1d_blur_filter = 
+large_1d_blur_filter = fspecial('gaussian', [31 31], 4);
 
 large_blur_image = my_imfilter(test_image, large_1d_blur_filter);
 
@@ -55,7 +55,7 @@ imwrite(large_blur_image, strcat('../data/', picture_name, '/large_blur_image.jp
 %This should be faster to run and will give you an equivalent result.
 
 %% Oriented filter (Sobel Operator)
-sobel_filter = ; %should respond to horizontal gradients
+sobel_filter = [1,0,-1;2,0,-1;1,0,-1]; %should respond to horizontal gradients
 
 sobel_image = my_imfilter(test_image, sobel_filter);
 
@@ -65,7 +65,7 @@ imwrite(sobel_image + 0.5, strcat('../data/', picture_name, '/sobel_image.jpg'),
 
 
 %% High pass filter (Discrete Laplacian)
-laplacian_filter = ;
+laplacian_filter = fspecial('laplacian',0.5);
 
 laplacian_image = my_imfilter(test_image, laplacian_filter);
 
@@ -74,7 +74,7 @@ figure(6); imshow(laplacian_image + 0.5);
 imwrite(laplacian_image + 0.5, strcat('../data/', picture_name, '/laplacian_image.jpg'), 'quality', 95);
 
 %% High pass "filter" alternative, use the low frequency content
-high_pass_image = ;
+high_pass_image = test_image - blur_image;
 
 figure(7); imshow(high_pass_image + 0.5);
 imwrite(high_pass_image + 0.5, strcat('../data/', picture_name, '/high_pass_image.jpg'), 'quality', 95);
