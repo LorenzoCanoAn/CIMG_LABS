@@ -129,6 +129,7 @@ WB_bil_ww(:,:,2) = DM_bil(:,:,2);
 WB_bil_ww(:,:,3) = DM_bil(:,:,3)/b_max*g_max;
 figure; imshow(WB_bil_ww); title("Bilinear interpolation, white world");
 
+%%
 % Manual white balancing
     
     % Region Selection
@@ -167,4 +168,29 @@ WB_bil_mb(:,:,1) = DM_bil(:,:,1)/r_avg*g_avg;
 WB_bil_mb(:,:,2) = DM_bil(:,:,2);
 WB_bil_mb(:,:,3) = DM_bil(:,:,3)/b_avg*g_avg;
 figure; imshow(WB_bil_mb); title("Bilinear interpolation, manual balancing");
+
+%% Denoising
+close all;
+
+%Linear denoise 
+kernel_size = 2;
+h = ones(kernel_size)/kernel_size^2;
+linear_denoise = imfilter(WB_bil_mb,h,'conv');
+figure; imshow(linear_denoise); title("Linear Denoise");
+
+%Median denoise
+
+medianFilteredImage(:,:,1) = medfilt2(WB_bil_mb(:,:,1)*250,[3 3])/250;
+medianFilteredImage(:,:,2) = medfilt2(WB_bil_mb(:,:,2)*250, [3 3])/250;
+medianFilteredImage(:,:,3) = medfilt2(WB_bil_mb(:,:,3)*250, [3 3])/250;
+figure; imshow(medianFilteredImage); title("Median Denoise");
+
+%Gaussian denoise 
+
+gaussian_kernel = fspecial('gaussian', [kernel_size kernel_size], 4);
+gaussian_denoise = imfilter(WB_bil_mb,h,'conv');
+figure; imshow(gaussian_denoise); title("Gaussian Denoise");
+
+
+
 
