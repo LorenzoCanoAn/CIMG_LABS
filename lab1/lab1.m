@@ -141,6 +141,7 @@ if PLOT
     figure; imshow(WB_bil_ww); title("Bilinear interpolation, white world");
 end
 
+%%
 % Manual white balancing
     
     % Region Selection
@@ -282,8 +283,33 @@ function rgb_filtered = rgb_median(image, kernel)
     rgb_filtered = cat(3, rf, gf, bf);
 end
 
-function toned_image = gamma_correction(image, gamma)
-    under = image <= 0.0031308;
-    toned_image = (image .* under) * 12.92;
-    toned_image = toned_image + ((1+0.055)*(image).^(1/gamma)-0.055).*~under;
-end
+% function toned_image = gamma_correction(image, gamma)
+%     under = image <= 0.0031308;
+%     toned_image = (image .* under) * 12.92;
+%     toned_image = toned_image + ((1+0.055)*(image).^(1/gamma)-0.055).*~under;
+% end
+% %% Denoising
+% close all;
+% 
+% %Linear denoise 
+% kernel_size = 2;
+% h = ones(kernel_size)/kernel_size^2;
+% linear_denoise = imfilter(WB_bil_mb,h,'conv');
+% figure; imshow(linear_denoise); title("Linear Denoise");
+% 
+% %Median denoise
+% 
+% medianFilteredImage(:,:,1) = medfilt2(WB_bil_mb(:,:,1)*250,[3 3])/250;
+% medianFilteredImage(:,:,2) = medfilt2(WB_bil_mb(:,:,2)*250, [3 3])/250;
+% medianFilteredImage(:,:,3) = medfilt2(WB_bil_mb(:,:,3)*250, [3 3])/250;
+% figure; imshow(medianFilteredImage); title("Median Denoise");
+% 
+% %Gaussian denoise 
+% 
+% gaussian_kernel = fspecial('gaussian', [kernel_size kernel_size], 4);
+% gaussian_denoise = imfilter(WB_bil_mb,h,'conv');
+% figure; imshow(gaussian_denoise); title("Gaussian Denoise");
+
+
+
+
