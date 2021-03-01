@@ -10,8 +10,8 @@ close all; % closes all figures
 
 %% Setup
 % read images and convert to floating point format.
-image2 = im2single(imread("..\data\perrete.jpg"));
-image1 = im2single(imread("..\data\gatete.jpg"));
+image1 = im2single(imread("..\data\billy.png"));
+image2 = im2single(imread("..\data\mairena.jpg"));
 
 % align the images
 [image1, image2] =  align_images(image1, image2);
@@ -38,7 +38,7 @@ crop_image2 = image2(j1:j2,i1:i2,:);
 % YOUR CODE BELOW. Use my_imfilter create 'low_frequencies' and
 % 'high_frequencies' and then combine them to create 'hybrid_image'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-blur_img_kernel = fspecial('gaussian', [10 10], 4);
+blur_img_kernel = fspecial('gaussian', [5 5], 4);
 
 %make the filter sum to 1
 blur_img_kernel = blur_img_kernel;
@@ -54,7 +54,7 @@ mean_hf = mean(high_frequencies, 'all');
 tmean = (mean_lf+mean_hf)/2;
 
 low_frequencies = low_frequencies*tmean/mean_lf;
-high_frequencies = high_frequencies*tmean*0.045/mean_hf;
+high_frequencies = high_frequencies*tmean*0.0325/mean_hf;
 
 hybrid_image_res = high_frequencies+low_frequencies;
 
