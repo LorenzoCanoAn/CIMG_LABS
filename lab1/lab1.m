@@ -1,4 +1,4 @@
-clear all
+clear all %#ok<CLALL>
 
 PLOT = 0;
 %% Raw image conversion
@@ -107,7 +107,7 @@ WB_nni_gw(:,:,1) = DM_nni(:,:,1)/r_avg*g_avg;
 WB_nni_gw(:,:,2) = DM_nni(:,:,2);
 WB_nni_gw(:,:,3) = DM_nni(:,:,3)/b_avg*g_avg;
 if PLOT
-    figure; imshow(WB_nni_gw); title("NNI, gray world");
+    figure; imshow(WB_nni_gw); title("NNI, gray world"); %#ok<*UNRCH>
 end
 r_avg = mean(DM_bil(:,:,1),'all');
 g_avg = mean(DM_bil(:,:,2),'all');
@@ -192,29 +192,29 @@ tic
 meank = ones(3,3)/9;
 gausk = fspecial('gaussian', [3 3], 4);
 medik = [3,3];
-DN_nni_gw_mean = real(my_imfilter(WB_nni_gw, meank));
-DN_nni_gw_gaus = real(my_imfilter(WB_nni_gw, gausk));
-DN_nni_gw_medi =  rgb_median(WB_nni_gw, medik);
+DN_nni_gw_mean = imfilter(WB_nni_gw, meank);
+DN_nni_gw_gaus = imfilter(WB_nni_gw, gausk);
+DN_nni_gw_medi = mymedfil(WB_nni_gw, medik);
 
-DN_nni_ww_mean = real(my_imfilter(WB_nni_ww, meank));
-DN_nni_ww_gaus = real(my_imfilter(WB_nni_ww, gausk));
-DN_nni_ww_medi =  rgb_median(WB_nni_ww, medik);
+DN_nni_ww_mean = imfilter(WB_nni_ww, meank);
+DN_nni_ww_gaus = imfilter(WB_nni_ww, gausk);
+DN_nni_ww_medi = mymedfil(WB_nni_ww, medik);
 
-DN_nni_mb_mean = real(my_imfilter(WB_nni_mb, meank));
-DN_nni_mb_gaus = real(my_imfilter(WB_nni_mb, gausk));
-DN_nni_mb_medi =  rgb_median(WB_nni_mb, medik);
+DN_nni_mb_mean = imfilter(WB_nni_mb, meank);
+DN_nni_mb_gaus = imfilter(WB_nni_mb, gausk);
+DN_nni_mb_medi = mymedfil(WB_nni_mb, medik);
 
-DN_bil_gw_mean = real(my_imfilter(WB_bil_gw, meank));
-DN_bil_gw_gaus = real(my_imfilter(WB_bil_gw, gausk));
-DN_bil_gw_medi =  rgb_median(WB_bil_gw, medik);
+DN_bil_gw_mean = imfilter(WB_bil_gw, meank);
+DN_bil_gw_gaus = imfilter(WB_bil_gw, gausk);
+DN_bil_gw_medi = mymedfil(WB_bil_gw, medik);
 
-DN_bil_ww_mean = real(my_imfilter(WB_bil_ww, meank));
-DN_bil_ww_gaus = real(my_imfilter(WB_bil_ww, gausk));
-DN_bil_ww_medi =  rgb_median(WB_bil_ww, medik);
+DN_bil_ww_mean = imfilter(WB_bil_ww, meank);
+DN_bil_ww_gaus = imfilter(WB_bil_ww, gausk);
+DN_bil_ww_medi = mymedfil(WB_bil_ww, medik);
 
-DN_bil_mb_mean = real(my_imfilter(WB_bil_mb, meank));
-DN_bil_mb_gaus = real(my_imfilter(WB_bil_mb, gausk));
-DN_bil_mb_medi =  rgb_median(WB_bil_mb, medik);
+DN_bil_mb_mean = imfilter(WB_bil_mb, meank);
+DN_bil_mb_gaus = imfilter(WB_bil_mb, gausk);
+DN_bil_mb_medi = mymedfil(WB_bil_mb, medik);
 fprintf(strcat("END denoising, T=",num2str(toc)," s\n"))
 
 %% Color balance
@@ -268,7 +268,7 @@ TR_bil_mb_medi = gamma_correction(CB_bil_mb_medi*2^alpha, gamma);
 fprintf(strcat("END tone reproduction, T=",num2str(toc)," s\n"))
 
 %% FUNCTIONS
-function rgb_filtered = rgb_median(image, kernel)
+function rgb_filtered = mymedfil(image, kernel)
     gray = rgb2gray(image);
     grayf = medfilt2(gray,kernel);
     changed = gray ~= grayf;
