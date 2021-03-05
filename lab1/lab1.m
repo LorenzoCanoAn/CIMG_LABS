@@ -2,7 +2,7 @@ PLOT = 0;
 %% Raw image conversion
 fprintf("BEGIN image conversion\n")
 tic
-image_name = "IMG_0819";
+image_name = "IMG_0596";
 cr2_file = strcat(image_name,".CR2");
 raw_folder = "src_imgs";
 raw_path = strcat(raw_folder,"/",cr2_file);
@@ -22,10 +22,12 @@ fprintf(strcat("END image loading, T=",num2str(toc)," s\n"))
 %% Linearization
 fprintf("BEGIN linearization\n")
 tic
-linear_image = double(double(RAW_image))/15600-1023/15600;
+linear_image = double(double(RAW_image)-1023)/(15600-1023);
 linear_image(linear_image<0) = 0;
 linear_image(linear_image>1) = 1;
 fprintf(strcat("END image linearization, T=",num2str(toc)," s\n"))
+figure;imshowpair(RAW_image,linear_image,'montage')
+figure;imshow([RAW_image,linear_image]);
 
 %% Demosaicing
 fprintf("BEGIN demosaicing\n")
@@ -90,7 +92,7 @@ DM_bil(2:2:height,2:2:width,2) =   (w_borders((1:2:height)+2 +1  +0,(1:2:width)+
                                     w_borders((1:2:height)+2 +1  +0,(1:2:width)+2 +1 +1,2) + ...
                                     w_borders((1:2:height)+2 +1  -1,(1:2:width)+2 +1 +0,2) + ...
                                     w_borders((1:2:height)+2 +1  +1,(1:2:width)+2 +1 +0,2))/4;
-                                
+figure;imshowpair(linear_image,DM_bil,'montage')                                
 fprintf(strcat("END demosaicing, T=",num2str(toc)," s\n"))
 
 %% White balancing
@@ -141,7 +143,7 @@ if PLOT
     figure; imshow(WB_bil_ww); title("Bilinear interpolation, white world");
 end
 
-%%
+
 % Manual white balancing
     
     % Region Selection
@@ -186,6 +188,10 @@ if PLOT
 end
 fprintf(strcat("END white balancing, T=",num2str(toc)," s\n"))
 
+figure;imshowpair(DM_bil,WB_bil_gw,'montage')                                
+figure;imshowpair(DM_bil,WB_bil_ww,'montage')                                
+figure;imshowpair(DM_bil,WB_bil_mb,'montage')                                
+
 %% Denoising
 fprintf("BEGIN denoising \n")
 tic
@@ -193,7 +199,7 @@ meank = ones(3,3)/9;
 gausk = fspecial('gaussian', [3 3], 4);
 medik = [3,3];
 
-DN_nni_gw_mean = imfilter(WB_nni_gw, meank);
+% DN_nni_gw_mean = imfilter(WB_nni_gw, meank);
 % DN_nni_gw_gaus = imfilter(WB_nni_gw, gausk);
 % DN_nni_gw_medi = mymedfil(WB_nni_gw, medik);
 % 
@@ -216,14 +222,21 @@ DN_nni_gw_mean = imfilter(WB_nni_gw, meank);
 % DN_bil_mb_mean = imfilter(WB_bil_mb, meank);
 % DN_bil_mb_gaus = imfilter(WB_bil_mb, gausk);
 % DN_bil_mb_medi = mymedfil(WB_bil_mb, medik);
+
+  
 fprintf(strcat("END denoising, T=",num2str(toc)," s\n"))
 
+range1 = (1:100) + 1300;
+range2 = (1:100) + 3300;
+% figure;imshowpair(WB_bil_mb(range1,range2,:)*1.5,DN_bil_mb_mean(range1,range2,:)*1.5,'montage')    
+% figure;imshowpair(WB_bil_mb(range1,range2,:)*1.5,DN_bil_mb_gaus(range1,range2,:)*1.5,'montage')                                
+% figure;imshowpair(WB_bil_mb(range1,range2,:)*1.5,DN_bil_mb_medi(range1,range2,:)*1.5,'montage')                                
 %% Color balance
 fprintf("BEGIN color balance\n")
 tic
-saturation_increase = 2;
+saturation_increase = 1.3;
 brightness_increase = 1.0;
-CB_nni_gw_mean = increase_saturation(DN_nni_gw_mean,saturation_increase, brightness_increase);
+% CB_nni_gw_mean = increase_saturation(DN_nni_gw_mean,saturation_increase, brightness_increase);
 % CB_nni_gw_gaus = increase_saturation(DN_nni_gw_gaus,saturation_increase, brightness_increase);
 % CB_nni_gw_medi = increase_saturation(DN_nni_gw_medi,saturation_increase, brightness_increase);
 % CB_nni_ww_mean = increase_saturation(DN_nni_ww_mean,saturation_increase, brightness_increase);
@@ -239,18 +252,19 @@ CB_nni_gw_mean = increase_saturation(DN_nni_gw_mean,saturation_increase, brightn
 % CB_bil_ww_gaus = increase_saturation(DN_bil_ww_gaus,saturation_increase, brightness_increase);
 % CB_bil_ww_medi = increase_saturation(DN_bil_ww_medi,saturation_increase, brightness_increase);
 % CB_bil_mb_mean = increase_saturation(DN_bil_mb_mean,saturation_increase, brightness_increase);
-% CB_bil_mb_gaus = increase_saturation(DN_bil_mb_gaus,saturation_increase, brightness_increase);
-CB_bil_mb_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_medi),saturation_increase));
+CB_bil_mb_gaus = increase_saturation(DN_bil_mb_gaus,saturation_increase, brightness_increase);
+% CB_bil_mb_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_medi),saturation_increase));
 fprintf(strcat("END color balance, T=",num2str(toc)," s\n"))
+figure;imshowpair(DN_bil_mb_gaus,CB_bil_mb_gaus,'montage')
 % figure;imshow([DN_bil_ww_gaus CB_bil_ww_gaus])
 % figure;imshow([DN_bil_mb_gaus CB_bil_mb_gaus])
 
 %% Tone reproduction
 fprintf("BEGIN tone reproduction\n")
 tic
-gamma = 1.5;
-alpha = 1.5;
-TR_nni_gw_mean = gamma_correction(CB_nni_gw_mean*2^alpha, gamma);
+gamma = 1.9;
+alpha = 0.1;
+% TR_nni_gw_mean = gamma_correction(CB_nni_gw_mean*2^alpha, gamma);
 % TR_nni_gw_gaus = gamma_correction(CB_nni_gw_gaus*2^alpha, gamma);
 % TR_nni_gw_medi = gamma_correction(CB_nni_gw_medi*2^alpha, gamma);
 % TR_nni_ww_mean = gamma_correction(CB_nni_ww_mean*2^alpha, gamma);
@@ -266,12 +280,11 @@ TR_nni_gw_mean = gamma_correction(CB_nni_gw_mean*2^alpha, gamma);
 % TR_bil_ww_gaus = gamma_correction(CB_bil_ww_gaus*2^alpha, gamma);
 % TR_bil_ww_medi = gamma_correction(CB_bil_ww_medi*2^alpha, gamma);
 % TR_bil_mb_mean = gamma_correction(CB_bil_mb_mean*2^alpha, gamma);
-% TR_bil_mb_gaus = gamma_correction(CB_bil_mb_gaus*2^alpha, gamma);
+TR_bil_mb_gaus = gamma_correction(CB_bil_mb_gaus*(2^alpha), gamma);
 % TR_bil_mb_medi = gamma_correction(CB_bil_mb_medi*2^alpha, gamma);
 fprintf(strcat("END tone reproduction, T=",num2str(toc)," s\n"))
 % figure;imshow([CB_bil_mb_gaus TR_bil_mb_gaus])
-figure;imshowpair(CB_nni_gw_mean,TR_nni_gw_mean,'montage')
-
+figure;imshowpair(CB_bil_mb_gaus,TR_bil_mb_gaus,'montage')
 %% FUNCTIONS
 function rgb_filtered = mymedfil(image, kernel)
     gray = rgb2gray(image);
@@ -288,10 +301,31 @@ function rgb_filtered = mymedfil(image, kernel)
     rgb_filtered = cat(3, rf, gf, bf);
 end
 
-function toned_image = gamma_correction(image, gamma)
-    under = image <= 0.0031308;
-    toned_image = (image .* under) * 12.92;
-    toned_image = toned_image + ((1+0.055)*(image).^(1/gamma)-0.055).*~under;
+function y = gamma_correction(x, gamma)
+%     under = image <= 0.031308;
+%     toned_image = (image .* under) * 12.92;
+%     toned_image = toned_image + (((1+0.055)*(image.^(1/gamma)))-0.055).*~under;
+% Curve parameters
+
+gamma = cast(1/gamma,'like',x);
+a     = cast(1.055,'like',x);
+b     = cast(-0.055,'like',x);
+c     = cast(12.92,'like',x);
+d     = cast(0.0031308,'like',x);
+
+y = zeros(size(x),'like',x);
+
+in_sign = -2 * (x < 0) + 1;
+x = abs(x);
+
+lin_range = (x < d);
+gamma_range = ~lin_range;
+
+y(gamma_range) = a * exp(gamma .* log(x(gamma_range))) + b;
+y(lin_range) = c * x(lin_range);
+
+y = y .* in_sign;
+
 end
 
 function saturated = increase_saturation(image, factor_s, factor_b)
