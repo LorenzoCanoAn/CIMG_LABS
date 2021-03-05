@@ -69,5 +69,4 @@ imwrite(high_frequencies + 0.5, 'high_frequencies.jpg', 'quality', 95);
 imwrite(hybrid_image_res, 'hybrid_image.jpg', 'quality', 95);
 imwrite(vis, 'hybrid_image_scales.jpg', 'quality', 95);
 
-
 %%

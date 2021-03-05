@@ -1,10 +1,8 @@
-clear all %#ok<CLALL>
-
 PLOT = 0;
 %% Raw image conversion
 fprintf("BEGIN image conversion\n")
 tic
-image_name = "IMG_0596";
+image_name = "IMG_0819";
 cr2_file = strcat(image_name,".CR2");
 raw_folder = "src_imgs";
 raw_path = strcat(raw_folder,"/",cr2_file);
@@ -13,12 +11,14 @@ system(command);
 tiff_file = strcat(image_name,".tiff");
 tiff_path = strcat(raw_folder,"/",tiff_file);
 fprintf(strcat("END image conversion, T=",num2str(toc)," s\n"))
+
 %% Load image into matlab
 fprintf("BEGIN image loading\n")
 tic
 RAW_image = imread(tiff_path);
 [height,width] = size(RAW_image);
 fprintf(strcat("END image loading, T=",num2str(toc)," s\n"))
+
 %% Linearization
 fprintf("BEGIN linearization\n")
 tic
@@ -192,80 +192,85 @@ tic
 meank = ones(3,3)/9;
 gausk = fspecial('gaussian', [3 3], 4);
 medik = [3,3];
+
 DN_nni_gw_mean = imfilter(WB_nni_gw, meank);
-DN_nni_gw_gaus = imfilter(WB_nni_gw, gausk);
-DN_nni_gw_medi = mymedfil(WB_nni_gw, medik);
-
-DN_nni_ww_mean = imfilter(WB_nni_ww, meank);
-DN_nni_ww_gaus = imfilter(WB_nni_ww, gausk);
-DN_nni_ww_medi = mymedfil(WB_nni_ww, medik);
-
-DN_nni_mb_mean = imfilter(WB_nni_mb, meank);
-DN_nni_mb_gaus = imfilter(WB_nni_mb, gausk);
-DN_nni_mb_medi = mymedfil(WB_nni_mb, medik);
-
-DN_bil_gw_mean = imfilter(WB_bil_gw, meank);
-DN_bil_gw_gaus = imfilter(WB_bil_gw, gausk);
-DN_bil_gw_medi = mymedfil(WB_bil_gw, medik);
-
-DN_bil_ww_mean = imfilter(WB_bil_ww, meank);
-DN_bil_ww_gaus = imfilter(WB_bil_ww, gausk);
-DN_bil_ww_medi = mymedfil(WB_bil_ww, medik);
-
-DN_bil_mb_mean = imfilter(WB_bil_mb, meank);
-DN_bil_mb_gaus = imfilter(WB_bil_mb, gausk);
-DN_bil_mb_medi = mymedfil(WB_bil_mb, medik);
+% DN_nni_gw_gaus = imfilter(WB_nni_gw, gausk);
+% DN_nni_gw_medi = mymedfil(WB_nni_gw, medik);
+% 
+% DN_nni_ww_mean = imfilter(WB_nni_ww, meank);
+% DN_nni_ww_gaus = imfilter(WB_nni_ww, gausk);
+% DN_nni_ww_medi = mymedfil(WB_nni_ww, medik);
+% 
+% DN_nni_mb_mean = imfilter(WB_nni_mb, meank);
+% DN_nni_mb_gaus = imfilter(WB_nni_mb, gausk);
+% DN_nni_mb_medi = mymedfil(WB_nni_mb, medik);
+% 
+% DN_bil_gw_mean = imfilter(WB_bil_gw, meank);
+% DN_bil_gw_gaus = imfilter(WB_bil_gw, gausk);
+% DN_bil_gw_medi = mymedfil(WB_bil_gw, medik);
+% 
+% DN_bil_ww_mean = imfilter(WB_bil_ww, meank);
+% DN_bil_ww_gaus = imfilter(WB_bil_ww, gausk);
+% DN_bil_ww_medi = mymedfil(WB_bil_ww, medik);
+% 
+% DN_bil_mb_mean = imfilter(WB_bil_mb, meank);
+% DN_bil_mb_gaus = imfilter(WB_bil_mb, gausk);
+% DN_bil_mb_medi = mymedfil(WB_bil_mb, medik);
 fprintf(strcat("END denoising, T=",num2str(toc)," s\n"))
 
 %% Color balance
 fprintf("BEGIN color balance\n")
 tic
-saturation_increase = ones(1,1,3);
-saturation_increase(1,1,2) = 3;
-CB_nni_gw_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_gw_mean),saturation_increase));
-CB_nni_gw_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_gw_gaus),saturation_increase));
-CB_nni_gw_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_gw_medi),saturation_increase));
-CB_nni_ww_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_ww_mean),saturation_increase));
-CB_nni_ww_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_ww_gaus),saturation_increase));
-CB_nni_ww_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_ww_medi),saturation_increase));
-CB_nni_mb_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_mb_mean),saturation_increase));
-CB_nni_mb_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_mb_gaus),saturation_increase));
-CB_nni_mb_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_mb_medi),saturation_increase));
-CB_bil_gw_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_gw_mean),saturation_increase));
-CB_bil_gw_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_gw_gaus),saturation_increase));
-CB_bil_gw_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_gw_medi),saturation_increase));
-CB_bil_ww_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_ww_mean),saturation_increase));
-CB_bil_ww_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_ww_gaus),saturation_increase));
-CB_bil_ww_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_ww_medi),saturation_increase));
-CB_bil_mb_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_mean),saturation_increase));
-CB_bil_mb_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_gaus),saturation_increase));
+saturation_increase = 2;
+brightness_increase = 1.0;
+CB_nni_gw_mean = increase_saturation(DN_nni_gw_mean,saturation_increase, brightness_increase);
+% CB_nni_gw_gaus = increase_saturation(DN_nni_gw_gaus,saturation_increase, brightness_increase);
+% CB_nni_gw_medi = increase_saturation(DN_nni_gw_medi,saturation_increase, brightness_increase);
+% CB_nni_ww_mean = increase_saturation(DN_nni_ww_mean,saturation_increase, brightness_increase);
+% CB_nni_ww_gaus = increase_saturation(DN_nni_ww_gaus,saturation_increase, brightness_increase);
+% CB_nni_ww_medi = increase_saturation(DN_nni_ww_medi,saturation_increase, brightness_increase);
+% CB_nni_mb_mean = increase_saturation(DN_nni_mb_mean,saturation_increase, brightness_increase);
+% CB_nni_mb_gaus = increase_saturation(DN_nni_mb_gaus,saturation_increase, brightness_increase);
+% CB_nni_mb_medi = increase_saturation(DN_nni_mb_medi,saturation_increase, brightness_increase);
+% CB_bil_gw_mean = increase_saturation(DN_bil_gw_mean,saturation_increase, brightness_increase);
+% CB_bil_gw_gaus = increase_saturation(DN_bil_gw_gaus,saturation_increase, brightness_increase);
+% CB_bil_gw_medi = increase_saturation(DN_bil_gw_medi,saturation_increase, brightness_increase);
+% CB_bil_ww_mean = increase_saturation(DN_bil_ww_mean,saturation_increase, brightness_increase);
+% CB_bil_ww_gaus = increase_saturation(DN_bil_ww_gaus,saturation_increase, brightness_increase);
+% CB_bil_ww_medi = increase_saturation(DN_bil_ww_medi,saturation_increase, brightness_increase);
+% CB_bil_mb_mean = increase_saturation(DN_bil_mb_mean,saturation_increase, brightness_increase);
+% CB_bil_mb_gaus = increase_saturation(DN_bil_mb_gaus,saturation_increase, brightness_increase);
 CB_bil_mb_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_medi),saturation_increase));
 fprintf(strcat("END color balance, T=",num2str(toc)," s\n"))
+% figure;imshow([DN_bil_ww_gaus CB_bil_ww_gaus])
+% figure;imshow([DN_bil_mb_gaus CB_bil_mb_gaus])
 
 %% Tone reproduction
 fprintf("BEGIN tone reproduction\n")
 tic
-gamma = 2.4;
-alpha = 0;
+gamma = 1.5;
+alpha = 1.5;
 TR_nni_gw_mean = gamma_correction(CB_nni_gw_mean*2^alpha, gamma);
-TR_nni_gw_gaus = gamma_correction(CB_nni_gw_gaus*2^alpha, gamma);
-TR_nni_gw_medi = gamma_correction(CB_nni_gw_medi*2^alpha, gamma);
-TR_nni_ww_mean = gamma_correction(CB_nni_ww_mean*2^alpha, gamma);
-TR_nni_ww_gaus = gamma_correction(CB_nni_ww_gaus*2^alpha, gamma);
-TR_nni_ww_medi = gamma_correction(CB_nni_ww_medi*2^alpha, gamma);
-TR_nni_mb_mean = gamma_correction(CB_nni_mb_mean*2^alpha, gamma);
-TR_nni_mb_gaus = gamma_correction(CB_nni_mb_gaus*2^alpha, gamma);
-TR_nni_mb_medi = gamma_correction(CB_nni_mb_medi*2^alpha, gamma);
-TR_bil_gw_mean = gamma_correction(CB_bil_gw_mean*2^alpha, gamma);
-TR_bil_gw_gaus = gamma_correction(CB_bil_gw_gaus*2^alpha, gamma);
-TR_bil_gw_medi = gamma_correction(CB_bil_gw_medi*2^alpha, gamma);
-TR_bil_ww_mean = gamma_correction(CB_bil_ww_mean*2^alpha, gamma);
-TR_bil_ww_gaus = gamma_correction(CB_bil_ww_gaus*2^alpha, gamma);
-TR_bil_ww_medi = gamma_correction(CB_bil_ww_medi*2^alpha, gamma);
-TR_bil_mb_mean = gamma_correction(CB_bil_mb_mean*2^alpha, gamma);
-TR_bil_mb_gaus = gamma_correction(CB_bil_mb_gaus*2^alpha, gamma);
-TR_bil_mb_medi = gamma_correction(CB_bil_mb_medi*2^alpha, gamma);
+% TR_nni_gw_gaus = gamma_correction(CB_nni_gw_gaus*2^alpha, gamma);
+% TR_nni_gw_medi = gamma_correction(CB_nni_gw_medi*2^alpha, gamma);
+% TR_nni_ww_mean = gamma_correction(CB_nni_ww_mean*2^alpha, gamma);
+% TR_nni_ww_gaus = gamma_correction(CB_nni_ww_gaus*2^alpha, gamma);
+% TR_nni_ww_medi = gamma_correction(CB_nni_ww_medi*2^alpha, gamma);
+% TR_nni_mb_mean = gamma_correction(CB_nni_mb_mean*2^alpha, gamma);
+% TR_nni_mb_gaus = gamma_correction(CB_nni_mb_gaus*2^alpha, gamma);
+% TR_nni_mb_medi = gamma_correction(CB_nni_mb_medi*2^alpha, gamma);
+% TR_bil_gw_mean = gamma_correction(CB_bil_gw_mean*2^alpha, gamma);
+% TR_bil_gw_gaus = gamma_correction(CB_bil_gw_gaus*2^alpha, gamma);
+% TR_bil_gw_medi = gamma_correction(CB_bil_gw_medi*2^alpha, gamma);
+% TR_bil_ww_mean = gamma_correction(CB_bil_ww_mean*2^alpha, gamma);
+% TR_bil_ww_gaus = gamma_correction(CB_bil_ww_gaus*2^alpha, gamma);
+% TR_bil_ww_medi = gamma_correction(CB_bil_ww_medi*2^alpha, gamma);
+% TR_bil_mb_mean = gamma_correction(CB_bil_mb_mean*2^alpha, gamma);
+% TR_bil_mb_gaus = gamma_correction(CB_bil_mb_gaus*2^alpha, gamma);
+% TR_bil_mb_medi = gamma_correction(CB_bil_mb_medi*2^alpha, gamma);
 fprintf(strcat("END tone reproduction, T=",num2str(toc)," s\n"))
+% figure;imshow([CB_bil_mb_gaus TR_bil_mb_gaus])
+figure;imshowpair(CB_nni_gw_mean,TR_nni_gw_mean,'montage')
 
 %% FUNCTIONS
 function rgb_filtered = mymedfil(image, kernel)
@@ -283,11 +288,18 @@ function rgb_filtered = mymedfil(image, kernel)
     rgb_filtered = cat(3, rf, gf, bf);
 end
 
-% function toned_image = gamma_correction(image, gamma)
-%     under = image <= 0.0031308;
-%     toned_image = (image .* under) * 12.92;
-%     toned_image = toned_image + ((1+0.055)*(image).^(1/gamma)-0.055).*~under;
-% end
+function toned_image = gamma_correction(image, gamma)
+    under = image <= 0.0031308;
+    toned_image = (image .* under) * 12.92;
+    toned_image = toned_image + ((1+0.055)*(image).^(1/gamma)-0.055).*~under;
+end
+
+function saturated = increase_saturation(image, factor_s, factor_b)
+    hsv = rgb2hsv(image);
+    hsv(:,:,2) = hsv(:,:,2) * factor_s;
+    hsv(:,:,3) = hsv(:,:,3) * factor_b;
+    saturated = hsv2rgb(hsv);
+end
 % %% Denoising
 % close all;
 % 
