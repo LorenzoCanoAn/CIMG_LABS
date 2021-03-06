@@ -1,0 +1,164 @@
+DN_nni_gw_mean = my_imfilter(WB_nni_gw, mean);
+DN_nni_gw_gaus = my_imfilter(WB_nni_gw, gaus);
+DN_nni_gw_medi =    medfilt2(WB_nni_gw, medi);
+
+DN_nni_ww_mean = my_imfilter(WB_nni_ww, mean);
+DN_nni_ww_gaus = my_imfilter(WB_nni_ww, gaus);
+DN_nni_ww_medi =    medfilt2(WB_nni_ww, medi);
+
+DN_nni_mb_mean = my_imfilter(WB_nni_mb, mean);
+DN_nni_mb_gaus = my_imfilter(WB_nni_mb, gaus);
+DN_nni_mb_medi =    medfilt2(WB_nni_mb, medi);
+
+DN_bil_gw_mean = my_imfilter(WB_bil_gw, mean);
+DN_bil_gw_gaus = my_imfilter(WB_bil_gw, gaus);
+DN_bil_gw_medi =    medfilt2(WB_bil_gw, medi);
+
+DN_bil_ww_mean = my_imfilter(WB_bil_ww, mean);
+DN_bil_ww_gaus = my_imfilter(WB_bil_ww, gaus);
+DN_bil_ww_medi =    medfilt2(WB_bil_ww, medi);
+
+DN_bil_mb_mean = my_imfilter(WB_bil_mb, mean);
+DN_bil_mb_gaus = my_imfilter(WB_bil_mb, gaus);
+DN_bil_mb_medi =    medfilt2(WB_bil_mb, medi);
+
+
+____________________________________________________________
+Color balancing
+saturation_increase = ones(1,1,3);
+saturation_increase(1,1,2) = 1.4;
+CB_nni_gw_mean = hsv2rgb(rgb2hsv(DN_nni_gw_mean)*saturation_increase);
+CB_nni_gw_gaus = hsv2rgb(rgb2hsv(DN_nni_gw_gaus)*saturation_increase);
+CB_nni_gw_medi = hsv2rgb(rgb2hsv(DN_nni_gw_medi)*saturation_increase);
+CB_nni_ww_mean = hsv2rgb(rgb2hsv(DN_nni_ww_mean)*saturation_increase);
+CB_nni_ww_gaus = hsv2rgb(rgb2hsv(DN_nni_ww_gaus)*saturation_increase);
+CB_nni_ww_medi = hsv2rgb(rgb2hsv(DN_nni_ww_medi)*saturation_increase);
+CB_nni_mb_mean = hsv2rgb(rgb2hsv(DN_nni_mb_mean)*saturation_increase);
+CB_nni_mb_gaus = hsv2rgb(rgb2hsv(DN_nni_mb_gaus)*saturation_increase);
+CB_nni_mb_medi = hsv2rgb(rgb2hsv(DN_nni_mb_medi)*saturation_increase);
+CB_bil_gw_mean = hsv2rgb(rgb2hsv(DN_bil_gw_mean)*saturation_increase);
+CB_bil_gw_gaus = hsv2rgb(rgb2hsv(DN_bil_gw_gaus)*saturation_increase);
+CB_bil_gw_medi = hsv2rgb(rgb2hsv(DN_bil_gw_medi)*saturation_increase);
+CB_bil_ww_mean = hsv2rgb(rgb2hsv(DN_bil_ww_mean)*saturation_increase);
+CB_bil_ww_gaus = hsv2rgb(rgb2hsv(DN_bil_ww_gaus)*saturation_increase);
+CB_bil_ww_medi = hsv2rgb(rgb2hsv(DN_bil_ww_medi)*saturation_increase);
+CB_bil_mb_mean = hsv2rgb(rgb2hsv(DN_bil_mb_mean)*saturation_increase);
+CB_bil_mb_gaus = hsv2rgb(rgb2hsv(DN_bil_mb_gaus)*saturation_increase);
+CB_bil_mb_medi = hsv2rgb(rgb2hsv(DN_bil_mb_medi)*saturation_increase);
+
+
+
+rgbImage = imread(fullFileName);
+
+% Get the dimensions of the image.  numberOfColorBands should be = 3.
+[rows columns numberOfColorBands] = size(rgbImage);
+
+
+redChannel = rgbImage(:, :, 1);
+greenChannel = rgbImage(:, :, 2);
+blueChannel = rgbImage(:, :, 3);
+
+% Display the individual red, green, and blue color channels.
+
+
+% Median Filter the channels:
+redMF = medfilt2(redChannel, kernel);
+greenMF = medfilt2(greenChannel, kernel);
+blueMF = medfilt2(blueChannel, kernel);
+
+
+rgbFixed = cat(3, redMF, greenMF, blueMF);
+
+
+CB_nni_gw_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_gw_mean),saturation_increase));
+CB_nni_gw_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_gw_gaus),saturation_increase));
+CB_nni_gw_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_gw_medi),saturation_increase));
+CB_nni_ww_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_ww_mean),saturation_increase));
+CB_nni_ww_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_ww_gaus),saturation_increase));
+CB_nni_ww_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_ww_medi),saturation_increase));
+CB_nni_mb_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_mb_mean),saturation_increase));
+CB_nni_mb_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_mb_gaus),saturation_increase));
+CB_nni_mb_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_nni_mb_medi),saturation_increase));
+CB_bil_gw_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_gw_mean),saturation_increase));
+CB_bil_gw_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_gw_gaus),saturation_increase));
+CB_bil_gw_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_gw_medi),saturation_increase));
+CB_bil_ww_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_ww_mean),saturation_increase));
+CB_bil_ww_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_ww_gaus),saturation_increase));
+CB_bil_ww_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_ww_medi),saturation_increase));
+CB_bil_mb_mean = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_mean),saturation_increase));
+CB_bil_mb_gaus = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_gaus),saturation_increase));
+CB_bil_mb_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_medi),saturation_increase));
+
+
+
+
+
+%% Tone correction
+fprintf("BEGIN tone reproduction\n")
+tic
+gamma = 2.4;
+alpha = 0;
+TR_nni_gw_mean = gamma_correction(CB_nni_gw_mean*2^alpha, gamma);
+TR_nni_gw_gaus = gamma_correction(CB_nni_gw_gaus*2^alpha, gamma);
+TR_nni_gw_medi = gamma_correction(CB_nni_gw_medi*2^alpha, gamma);
+TR_nni_ww_mean = gamma_correction(CB_nni_ww_mean*2^alpha, gamma);
+TR_nni_ww_gaus = gamma_correction(CB_nni_ww_gaus*2^alpha, gamma);
+TR_nni_ww_medi = gamma_correction(CB_nni_ww_medi*2^alpha, gamma);
+TR_nni_mb_mean = gamma_correction(CB_nni_mb_mean*2^alpha, gamma);
+TR_nni_mb_gaus = gamma_correction(CB_nni_mb_gaus*2^alpha, gamma);
+TR_nni_mb_medi = gamma_correction(CB_nni_mb_medi*2^alpha, gamma);
+TR_bil_gw_mean = gamma_correction(CB_bil_gw_mean*2^alpha, gamma);
+TR_bil_gw_gaus = gamma_correction(CB_bil_gw_gaus*2^alpha, gamma);
+TR_bil_gw_medi = gamma_correction(CB_bil_gw_medi*2^alpha, gamma);
+TR_bil_ww_mean = gamma_correction(CB_bil_ww_mean*2^alpha, gamma);
+TR_bil_ww_gaus = gamma_correction(CB_bil_ww_gaus*2^alpha, gamma);
+TR_bil_ww_medi = gamma_correction(CB_bil_ww_medi*2^alpha, gamma);
+TR_bil_mb_mean = gamma_correction(CB_bil_mb_mean*2^alpha, gamma);
+TR_bil_mb_gaus = gamma_correction(CB_bil_mb_gaus*2^alpha, gamma);
+TR_bil_mb_medi = gamma_correction(CB_bil_mb_medi*2^alpha, gamma);
+fprintf(strcat("END tone reproduction, T=",num2str(toc)," s\n"))
+
+
+DN_nni_gw_mean = imfilter(WB_nni_gw, meank);
+DN_nni_gw_gaus = imfilter(WB_nni_gw, gausk);
+DN_nni_gw_medi = mymedfil(WB_nni_gw, medik);
+
+DN_nni_ww_mean = imfilter(WB_nni_ww, meank);
+DN_nni_ww_gaus = imfilter(WB_nni_ww, gausk);
+DN_nni_ww_medi = mymedfil(WB_nni_ww, medik);
+
+DN_nni_mb_mean = imfilter(WB_nni_mb, meank);
+DN_nni_mb_gaus = imfilter(WB_nni_mb, gausk);
+DN_nni_mb_medi = mymedfil(WB_nni_mb, medik);
+
+DN_bil_gw_mean = imfilter(WB_bil_gw, meank);
+DN_bil_gw_gaus = imfilter(WB_bil_gw, gausk);
+DN_bil_gw_medi = mymedfil(WB_bil_gw, medik);
+
+DN_bil_ww_mean = imfilter(WB_bil_ww, meank);
+DN_bil_ww_gaus = imfilter(WB_bil_ww, gausk);
+DN_bil_ww_medi = mymedfil(WB_bil_ww, medik);
+
+DN_bil_mb_mean = imfilter(WB_bil_mb, meank);
+DN_bil_mb_gaus = imfilter(WB_bil_mb, gausk);
+DN_bil_mb_medi = mymedfil(WB_bil_mb, medik);
+fprintf(strcat("END denoising, T=",num2str(toc)," s\n"))
+
+
+CB_nni_gw_mean = increase_saturation(DN_nni_gw_mean,saturation_increase);
+CB_nni_gw_gaus = increase_saturation(DN_nni_gw_gaus,saturation_increase);
+CB_nni_gw_medi = increase_saturation(DN_nni_gw_medi,saturation_increase);
+CB_nni_ww_mean = increase_saturation(DN_nni_ww_mean,saturation_increase);
+CB_nni_ww_gaus = increase_saturation(DN_nni_ww_gaus,saturation_increase);
+CB_nni_ww_medi = increase_saturation(DN_nni_ww_medi,saturation_increase);
+CB_nni_mb_mean = increase_saturation(DN_nni_mb_mean,saturation_increase);
+CB_nni_mb_gaus = increase_saturation(DN_nni_mb_gaus,saturation_increase);
+CB_nni_mb_medi = increase_saturation(DN_nni_mb_medi,saturation_increase);
+CB_bil_gw_mean = increase_saturation(DN_bil_gw_mean,saturation_increase);
+CB_bil_gw_gaus = increase_saturation(DN_bil_gw_gaus,saturation_increase);
+CB_bil_gw_medi = increase_saturation(DN_bil_gw_medi,saturation_increase);
+CB_bil_ww_mean = increase_saturation(DN_bil_ww_mean,saturation_increase);
+CB_bil_ww_gaus = increase_saturation(DN_bil_ww_gaus,saturation_increase);
+CB_bil_ww_medi = increase_saturation(DN_bil_ww_medi,saturation_increase);
+CB_bil_mb_mean = increase_saturation(DN_bil_mb_mean,saturation_increase);
+CB_bil_mb_gaus = increase_saturation(DN_bil_mb_gaus,saturation_increase);
