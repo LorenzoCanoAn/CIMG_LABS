@@ -1,5 +1,3 @@
-
-
 % Read data
 aperture = imread('apertures/circular.bmp');
 image = imread('images/penguins.jpg');
