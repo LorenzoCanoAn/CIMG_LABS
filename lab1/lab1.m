@@ -300,6 +300,8 @@ TR_bil_mb_gaus = gamma_correction(CB_bil_mb_gaus*(2^alpha), gamma);
 fprintf(strcat("END tone reproduction, T=",num2str(toc)," s\n"))
 % figure;imshow([CB_bil_mb_gaus TR_bil_mb_gaus])
 figure;imshowpair(CB_bil_mb_gaus,TR_bil_mb_gaus,'montage')
+
+
 %% FUNCTIONS
 function rgb_filtered = mymedfil(image, kernel)
     gray = rgb2gray(image);
