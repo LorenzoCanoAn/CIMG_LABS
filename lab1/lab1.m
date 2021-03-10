@@ -1,17 +1,32 @@
+
+%% Parameters
+image_name = "IMG_0596";
+image_ext = ".CR2";
+image_path = "src_imgs";
 PLOT = 0;
+
+
+
+
+
+
 %% Raw image conversion
 fprintf("BEGIN image conversion\n")
 tic
-image_name = "IMG_0596";
-cr2_file = strcat(image_name,".CR2");
-raw_folder = "src_imgs";
-raw_path = strcat(raw_folder,"/",cr2_file);
-command = strcat("dcraw -4 -D -T ", raw_path);
-system(command);
-tiff_file = strcat(image_name,".tiff");
-tiff_path = strcat(raw_folder,"/",tiff_file);
-fprintf(strcat("END image conversion, T=",num2str(toc)," s\n"))
 
+
+if image_ext == ".CR2"
+    
+    cr2_file = strcat(image_name,".CR2");
+
+    raw_path = strcat(image_path,"/",cr2_file);
+    command = strcat("dcraw -4 -D -T ", raw_path);
+    system(command);
+    tiff_file = strcat(image_name,".tiff");
+    tiff_path = strcat(image_path,"/",tiff_file);
+    fprintf(strcat("END image conversion, T=",num2str(toc)," s\n"))
+
+end
 %% Load image into matlab
 fprintf("BEGIN image loading\n")
 tic
