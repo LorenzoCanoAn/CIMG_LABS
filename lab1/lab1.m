@@ -18,6 +18,9 @@ brightness_increase = 1.0;
 gamma = 1.9;
 alpha = 0.1;
 
+% Saving
+save_path = "saved_imgs";
+format = 'jpeg';
 %% Raw image conversion
 fprintf("BEGIN image conversion\n")
 tic
@@ -301,24 +304,28 @@ fprintf(strcat("END tone reproduction, T=",num2str(toc)," s\n\n"))
 fprintf("BEGIN compression and saving\n")
 tic
 
-imwrite(TR_nni_gw_mean,'saved_imgs/TR_nni_gw_mean.jpeg','jpeg')
-imwrite(TR_nni_gw_gaus,'saved_imgs/TR_nni_gw_gaus.jpeg','jpeg')
-imwrite(TR_nni_gw_medi,'saved_imgs/TR_nni_gw_medi.jpeg','jpeg')
-imwrite(TR_nni_ww_mean,'saved_imgs/TR_nni_ww_mean.jpeg','jpeg')
-imwrite(TR_nni_ww_gaus,'saved_imgs/TR_nni_ww_gaus.jpeg','jpeg')
-imwrite(TR_nni_ww_medi,'saved_imgs/TR_nni_ww_medi.jpeg','jpeg')
-imwrite(TR_nni_mb_mean,'saved_imgs/TR_nni_mb_mean.jpeg','jpeg')
-imwrite(TR_nni_mb_gaus,'saved_imgs/TR_nni_mb_gaus.jpeg','jpeg')
-imwrite(TR_nni_mb_medi,'saved_imgs/TR_nni_mb_medi.jpeg','jpeg')
-imwrite(TR_bil_gw_mean,'saved_imgs/TR_bil_gw_mean.jpeg','jpeg')
-imwrite(TR_bil_gw_gaus,'saved_imgs/TR_bil_gw_gaus.jpeg','jpeg')
-imwrite(TR_bil_gw_medi,'saved_imgs/TR_bil_gw_medi.jpeg','jpeg')
-imwrite(TR_bil_ww_mean,'saved_imgs/TR_bil_ww_mean.jpeg','jpeg')
-imwrite(TR_bil_ww_gaus,'saved_imgs/TR_bil_ww_gaus.jpeg','jpeg')
-imwrite(TR_bil_ww_medi,'saved_imgs/TR_bil_ww_medi.jpeg','jpeg')
-imwrite(TR_bil_mb_mean,'saved_imgs/TR_bil_mb_mean.jpeg','jpeg')
-imwrite(TR_bil_mb_gaus,'saved_imgs/TR_bil_mb_gaus.jpeg','jpeg')
-imwrite(TR_bil_mb_medi,'saved_imgs/TR_bil_mb_medi.jpeg','jpeg')
+if ~exist(save_path, 'dir')
+       mkdir(save_path)
+end
+ 
+imwrite(TR_nni_gw_mean,strcat(save_path,'/TR_nni_gw_mean.',format),format)
+imwrite(TR_nni_gw_gaus,strcat(save_path,'/TR_nni_gw_gaus.',format),format)
+imwrite(TR_nni_gw_medi,strcat(save_path,'/TR_nni_gw_medi.',format),format)
+imwrite(TR_nni_ww_mean,strcat(save_path,'/TR_nni_ww_mean.',format),format)
+imwrite(TR_nni_ww_gaus,strcat(save_path,'/TR_nni_ww_gaus.',format),format)
+imwrite(TR_nni_ww_medi,strcat(save_path,'/TR_nni_ww_medi.',format),format)
+imwrite(TR_nni_mb_mean,strcat(save_path,'/TR_nni_mb_mean.',format),format)
+imwrite(TR_nni_mb_gaus,strcat(save_path,'/TR_nni_mb_gaus.',format),format)
+imwrite(TR_nni_mb_medi,strcat(save_path,'/TR_nni_mb_medi.',format),format)
+imwrite(TR_bil_gw_mean,strcat(save_path,'/TR_bil_gw_mean.',format),format)
+imwrite(TR_bil_gw_gaus,strcat(save_path,'/TR_bil_gw_gaus.',format),format)
+imwrite(TR_bil_gw_medi,strcat(save_path,'/TR_bil_gw_medi.',format),format)
+imwrite(TR_bil_ww_mean,strcat(save_path,'/TR_bil_ww_mean.',format),format)
+imwrite(TR_bil_ww_gaus,strcat(save_path,'/TR_bil_ww_gaus.',format),format)
+imwrite(TR_bil_ww_medi,strcat(save_path,'/TR_bil_ww_medi.',format),format)
+imwrite(TR_bil_mb_mean,strcat(save_path,'/TR_bil_mb_mean.',format),format)
+imwrite(TR_bil_mb_gaus,strcat(save_path,'/TR_bil_mb_gaus.',format),format)
+imwrite(TR_bil_mb_medi,strcat(save_path,'/TR_bil_mb_medi.',format),format)
 
 fprintf(strcat("END compression and saving, T=",num2str(toc)," s\n\n"))
 
