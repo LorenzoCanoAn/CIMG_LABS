@@ -8,10 +8,15 @@
 
 close all; % closes all figures
 
+image_path = "..\data\";
+img_1_name = "perrete.jpg";
+img_2_name = "gatete.jpg";
+
+
 %% Setup
 % read images and convert to floating point format.
-image2 = im2single(imread("..\data\perrete.jpg"));
-image1 = im2single(imread("..\data\gatete.jpg"));
+image1 = im2single(imread(image_path + img_1_name));
+image2 = im2single(imread(image_path + img_2_name));
 
 % align the images
 [image1, image2] =  align_images(image1, image2);
@@ -54,7 +59,7 @@ mean_hf = mean(high_frequencies, 'all');
 tmean = (mean_lf+mean_hf)/2;
 
 low_frequencies = low_frequencies*tmean/mean_lf;
-high_frequencies = high_frequencies*tmean*0.045/mean_hf;
+high_frequencies = high_frequencies*tmean*0.19/mean_hf;
 
 hybrid_image_res = high_frequencies+low_frequencies;
 
