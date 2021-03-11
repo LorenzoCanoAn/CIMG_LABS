@@ -235,7 +235,7 @@ medik = [3,3];
 % DN_bil_ww_medi = mymedfil(WB_bil_ww, medik);
 % 
 % DN_bil_mb_mean = imfilter(WB_bil_mb, meank);
-% DN_bil_mb_gaus = imfilter(WB_bil_mb, gausk);
+ DN_bil_mb_gaus = imfilter(WB_bil_mb, gausk);
 % DN_bil_mb_medi = mymedfil(WB_bil_mb, medik);
 
   
@@ -270,9 +270,9 @@ brightness_increase = 1.0;
 CB_bil_mb_gaus = increase_saturation(DN_bil_mb_gaus,saturation_increase, brightness_increase);
 % CB_bil_mb_medi = hsv2rgb(pagemtimes(rgb2hsv(DN_bil_mb_medi),saturation_increase));
 fprintf(strcat("END color balance, T=",num2str(toc)," s\n"))
-figure;imshowpair(DN_bil_mb_gaus,CB_bil_mb_gaus,'montage')
+% figure;imshowpair(DN_bil_mb_gaus,CB_bil_mb_gaus,'montage')
 % figure;imshow([DN_bil_ww_gaus CB_bil_ww_gaus])
-% figure;imshow([DN_bil_mb_gaus CB_bil_mb_gaus])
+figure;imshow(CB_bil_mb_gaus)
 
 %% Tone reproduction
 fprintf("BEGIN tone reproduction\n")
@@ -300,6 +300,30 @@ TR_bil_mb_gaus = gamma_correction(CB_bil_mb_gaus*(2^alpha), gamma);
 fprintf(strcat("END tone reproduction, T=",num2str(toc)," s\n"))
 % figure;imshow([CB_bil_mb_gaus TR_bil_mb_gaus])
 figure;imshowpair(CB_bil_mb_gaus,TR_bil_mb_gaus,'montage')
+
+
+
+%% compression
+
+res = [];
+qualityFactor = 10:10:100;
+
+for i=1:10
+    name =strcat(int2str(i),'compression.jpeg');
+    imwrite(TR_bil_mb_gaus,name,'quality',qualityFactor(i));
+    c = im2double(imread(name));
+    res = [res ssim(TR_bil_mb_gaus,c)];
+end
+%%
+
+figure;
+plot(a,res);
+set(gca, 'XDir','reverse');
+ylabel("SSIM val");
+xlabel("% Compression");
+
+
+
 %% FUNCTIONS
 function rgb_filtered = mymedfil(image, kernel)
     gray = rgb2gray(image);
