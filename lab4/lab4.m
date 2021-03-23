@@ -1,6 +1,7 @@
 %% PARAMETERS
-inputFolder = 
 
+
+%% LOADING
 
 %% HDR IMAGING
 
