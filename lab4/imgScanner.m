@@ -1,6 +1,7 @@
 function result = imgScanner (rel)
 
     % Dir read
+
     ls = dir(rel);
     ls = ls(3:end);
    
