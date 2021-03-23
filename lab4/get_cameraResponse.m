@@ -8,21 +8,19 @@ else
     end
 end
 
-[height, width] = size(images{1});
-samplesPerImage = floor(height * width / downSampling);
-pixelsPerImage = height * width;
-indices = 1:downSampling:pixelsPerImage;
+[height, width, ~] = size(images{1});
+samplesPerImage = max(size(1:downSampling:height)) * max(size(1:downSampling:width));
+
 Z = zeros(samplesPerImage,nImages);
 
 for j = 1:nImages
-    for i = indices
-        Z(i,j) = images{j}(i);
-    end
+    imagen = images{j}(:,:,1);
+    Z(:,j) = reshape(imagen(1:downSampling:height, 1:downSampling:width).',1,[]);
 end
 
 B = log(exposures);
 
-[g, lE] = gsolve(Z, B, lambda, weight_pixel);
+[g, lE] = gsolve(Z, B, lambda);
 
 end
 
