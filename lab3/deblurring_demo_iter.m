@@ -1,7 +1,10 @@
-sigmas = [0.001,0.005,0.01,0.1];
-blurs = [3,7,14,20];
+sigmas = [0.1];
+blurs = [3, 5, 10, 20];
+i = 0;
+figure
 for sigma = sigmas
     for blurSize = blurs
+        i = i+1;
     % Read data
         aperture = imread('apertures/circular.bmp');
         image = imread('images/penguins.jpg');
@@ -33,21 +36,17 @@ for sigma = sigmas
         f1 = zDefocused(f0, k1, sigma);
 
         % Recover
-        % f0_hat = zDeconvWNR(f1, k1, C);
+        f0_hat = zDeconvWNR(f1, k1,C);
         % 
-        figure;
-        subplot_tight(1,3,1, 0.0)
-        imshow(f0);
-        title('Focused');
-        subplot_tight(1,3,2, 0.0)
+        
+        
+        subplot_tight(2,2,i)
         imshow(f1);
-        title('Defocused');
-        subplot_tight(1,3,3, 0.0)
-        imshow(f0_hat);
-        title('Recovered');
-
-        filename = strcat("results/s",num2str(sigma)," ","b",num2str(blurSize),".png");
-        saveas(gcf,filename,"png");
-        close all
+        title(strcat('Size=',num2str(blurSize)));
+      
+        
     end
 end
+filename = strcat("results/sigma_and_size/vary_blur_noise.png");
+saveas(gcf,filename,"png");
+close all

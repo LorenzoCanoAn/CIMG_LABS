@@ -5,5 +5,6 @@ if z <= z_avg
 else
     w = 255-z;
 end
+% w = 1;
 end
 

@@ -32,9 +32,8 @@ f1 = zDefocused(f0, k1, sigma);
 
 % Recover
 f0_hat = zDeconvWNR(f1, k1, C);
-
 figure;
-subplot_tight(1,3,1, 0.0)
+subplot_tight(1,3,1,[0.0,1])
 imshow(f0);
 title('Focused');
 subplot_tight(1,3,2, 0.0)

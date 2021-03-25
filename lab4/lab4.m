@@ -7,13 +7,14 @@ loadManager = imgScanner(inputFolder);
 
     %% Lienarize images
     [~, nImages] = size(loadManager.img);
-    [g, lE] = get_cameraResponse(loadManager.img, nImages, loadManager.obt, 1, 20);
-    plot(g);
+    [g] = get_cameraResponse(loadManager.img, nImages, loadManager.obt, 0.1, 20);
+    linearImg = linearize_image(loadManager, g);
+    linearImage = radiance(loadManager, g);
+    imshow(linearImage)
     %% Obtain radiance map
     
 %% GLOBAL TONE MAPPING
 
 %% Local tone mapping
-
 
 %% Trial with own pictures
