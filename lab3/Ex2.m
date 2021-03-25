@@ -1,5 +1,7 @@
+
+%% Parameters
 % Read data
-aperture = imread('apertures/circular.bmp');
+aperture = imread('apertures/Levin.bmp');
 image = imread('images/penguins.jpg');
 image = image(:,:,1);
 
@@ -8,6 +10,7 @@ sigma = 0.005;
 % Blur size
 blurSize = 7;
 
+%% Main
 disp(['Noise= ', num2str(sigma), ' Blur= ', num2str(blurSize)]);
 
 % Normalization

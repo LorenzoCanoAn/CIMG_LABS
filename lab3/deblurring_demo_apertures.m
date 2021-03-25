@@ -17,6 +17,7 @@ flow = max(temp(:));
 f0 = im2double(image);
 [h, w, ch] = size(f0);
 
+
 % Prior matrix: 1/f law
 AStar = eMakePrior(h, w)+0.00000001;
 C = sigma.^2*h*w./AStar;

@@ -1,7 +1,7 @@
 
 
 % Read data
-aperture = imread('apertures/circular.bmp');
+aperture = imread('apertures/zhou.bmp');
 image = imread('images/penguins.jpg');
 image = image(:,:,1);
 
