@@ -5,5 +5,6 @@ function [w] = weight_pixel(z)
     else
         w = 255-z;
     end
+    % w = 1;
 end
 

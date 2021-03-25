@@ -1,4 +1,4 @@
-function [g, lE] = get_cameraResponse(images, nImages, exposures, lambda, downSampling)
+function [G] = get_cameraResponse(images, nImages, exposures, lambda, downSampling)
 
 if ~exist("downSampling",'var')
     downSampling = 20;
@@ -13,14 +13,17 @@ samplesPerImage = max(size(1:downSampling:height)) * max(size(1:downSampling:wid
 
 Z = zeros(samplesPerImage,nImages);
 
-for j = 1:nImages
-    imagen = images{j}(:,:,1);
-    Z(:,j) = reshape(imagen(1:downSampling:height, 1:downSampling:width).',1,[]);
+G = cell(1,3);
+for channel = 1:3
+    for j = 1:nImages
+        imagen = images{j}(:,:,channel);
+        Z(:,j) = reshape(imagen(1:downSampling:height, 1:downSampling:width).',1,[]);
+    end
+
+    B = log(exposures);
+
+    [g, lE] = gsolve(Z, B, lambda); 
+    G{channel} = g;
 end
-
-B = log(exposures);
-
-[g, lE] = gsolve(Z, B, lambda);
-
 end
 

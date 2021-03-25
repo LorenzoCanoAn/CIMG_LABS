@@ -1,29 +1,34 @@
-# CImg - Laboratory 2 
+# CImg - Laboratory 3
 
-The following files have been modified in order to recreate the laboratory steps requested.
+The following files have been created and used for achieving the task proposed at Laboratory 3.
 
- - my_imfilter.m
- - hybrid_image.m
+ - Ex1.m    -> Implements Part 1 and 4
+ - Ex2.m	-> Implements Part 2 
+ - deblurring_demo_*.m -> Implements Part 3
  
 
 ## Launch 🚀
 
-pruebas.m: Test my_imfilter.m function, applying a kernel to an image. The parameters to be tunned are:
-	- picture_name = image name
-	- picture_format = image format
-	- picture_path = image path
-	- kernel = kernel to be applied
+Ex1.m:
+	 - aperture -> Aperture kernel to be applied
+	 - image	-> image to process
+
+	 - sigma	-> Noise level (gaussian noise)
+	 - blurSize -> equivalent to focal distance
 	
+Ex2.m:
+	 - aperture -> Aperture kernel to be applied
+	 - image	-> image to process
 
-hybrid_image.m
-	- image_path = image path
-	- img_1_name = 1st image name with extension - high frequency
- 	- img_2_name = 2nd image name with extension - low frequency
+	 - sigma	-> Noise level (gaussian noise)
+	 - blurSize -> equivalent to focal distance
+	
+deblurring_demo_*.m:
+	 - aperture -> Aperture kernel to be applied
+	 - image	-> image to process
 
-	Run Steps:
-		1st: Select the parts of both images to be align
-		2nd: Select a squared area of interest of the images, to reduce de empty mixed parts of the images.
-
-
+	 - sigma	-> Noise level (gaussian noise)
+	 - blurSize -> equivalent to focal distance
+	
 
 		

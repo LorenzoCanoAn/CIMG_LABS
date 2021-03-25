@@ -1,14 +1,18 @@
 
-
+%% Parameters
 % Read data
 aperture = imread('apertures/zhou.bmp');
 image = imread('images/penguins.jpg');
-image = image(:,:,1);
 
 % Noise level (gaussian noise)
 sigma = 0.005;
 % Blur size
 blurSize = 14;
+
+%% main
+image = image(:,:,1);
+
+
 
 disp(['Noise= ', num2str(sigma), ' Blur= ', num2str(blurSize)]);
 
@@ -32,9 +36,8 @@ f1 = zDefocused(f0, k1, sigma);
 
 % Recover
 f0_hat = zDeconvWNR(f1, k1, C);
-
 figure;
-subplot_tight(1,3,1, 0.0)
+subplot_tight(1,3,1,[0.0,1])
 imshow(f0);
 title('Focused');
 subplot_tight(1,3,2, 0.0)
