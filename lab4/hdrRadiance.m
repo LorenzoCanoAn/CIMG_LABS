@@ -1,11 +1,10 @@
-function hdr = hdrRadiance(loadManager ,g ,ln_t, w)   
+function hdr = hdrRadiance(loadManager ,g)   
     row = 716;
     col = 502;
     channels = 3;
     number = 16;
     ln_E = zeros(row,col,channels);
-    
-    
+    ln_t = log(loadManager.obt);
     for channel = 1:3
         for i = 1:row
             for j = 1:col
@@ -13,8 +12,8 @@ function hdr = hdrRadiance(loadManager ,g ,ln_t, w)
                W = 0;
                for n = 1:number
                    Z = loadManager.img{n}(i,j,channel)+1;
-                   t_g = g(Z);
-                   t_w = w(Z);
+                   t_g = g{channel}(Z);
+                   t_w = weight_pixel(Z);
                    tln_t = ln_t(n);
                    
                    lnE = lnE + t_w * (t_g-tln_t);
@@ -25,5 +24,5 @@ function hdr = hdrRadiance(loadManager ,g ,ln_t, w)
         end
     end
     
-    hdr = exp(ln_E)
+    hdr = exp(ln_E);
 end
