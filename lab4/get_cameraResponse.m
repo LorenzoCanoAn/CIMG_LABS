@@ -1,4 +1,4 @@
-function [G] = get_cameraResponse(images, nImages, exposures, lambda, downSampling)
+function [G] = get_cameraResponse(images, nImages, exposures,w, lambda, downSampling)
 
 if ~exist("downSampling",'var')
     downSampling = 20;
@@ -19,7 +19,7 @@ for channel = 1:3
         Z(:,j) = reshape(imagen.',1,[]);
     end
 
-    [g, lE] = gsolve(Z, B, lambda);
+    [g, lE] = gsolve(Z, B,w, lambda);
     G{channel} = g;
 end
 end

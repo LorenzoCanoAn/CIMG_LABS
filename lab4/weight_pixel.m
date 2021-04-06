@@ -1,5 +1,5 @@
 function [w] = weight_pixel(z)
-    z_avg = 1/2 *(256+1);
+    z_avg = 1/2 *(256);
     if z <= z_avg
         w = z;
     else
