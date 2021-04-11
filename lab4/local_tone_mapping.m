@@ -43,11 +43,13 @@ end
 %% COMBINE
     
         %% Obtain intensity
+
     [R, G, B] = imsplit(Lw);
     luminance = 1/61*(R*20 + G*40 + B);
 
-
-    log_luminance = log2(luminance);
+    %luminance = R * 0.299 + G * 0.587 + B * 0.144;
+    log_luminance = log(luminance);
+>>>>>>> 57b87be4a076ccb326a241f0d88d01194097a2a9
     %% Filtering intensity aith a bilateral filter
     log_base = imbilatfilt(log_luminance, sigmas, sigmar);
     log_detail = log_luminance - log_base;
@@ -62,6 +64,5 @@ end
 %% COMBINE
     
     I = Lw .* corr_luminance ./ luminance;
-    
 end
 

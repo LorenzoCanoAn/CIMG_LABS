@@ -13,7 +13,6 @@ end
 
 %% Obtain intensity
 hsv_space = rgb2hsv(Lw);
-
 luminancy = hsv_space(:,:,3);
 
 %% Reduce contrast of intensity
@@ -21,7 +20,6 @@ luminancy = hsv_space(:,:,3);
 Lwavg = exp(mean(log(delta+luminancy),'all'));
 L = a/Lwavg * luminancy;
 L = L.*(1+L/Lwhite^2)./(1+L);
-
 hsv_space(:,:,3)=L;
 %% Apply new contrast to image
 
