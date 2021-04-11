@@ -43,12 +43,11 @@ end
 %% COMBINE
     
         %% Obtain intensity
-    luminance = mean(Lw,3); % Trabajar en luminancia en escala logaritmica.
-    R = Lw(:,:,1);
-    G = Lw(:,:,2);
-    B = Lw(:,:,3);
-    luminance = R * 0.299 + G * 0.587 + B * 0.144;
-    log_luminance = log(luminance);
+    [R, G, B] = imsplit(Lw);
+    luminance = 1/61*(R*20 + G*40 + B);
+
+
+    log_luminance = log2(luminance);
     %% Filtering intensity aith a bilateral filter
     log_base = imbilatfilt(log_luminance, sigmas, sigmar);
     log_detail = log_luminance - log_base;
@@ -63,5 +62,6 @@ end
 %% COMBINE
     
     I = Lw .* corr_luminance ./ luminance;
+    
 end
 

@@ -1,51 +1,53 @@
-function rgb=hsl2rgb(hsl_in)
+function rgb=hsl2rgb(hsl)
 %Converts Hue-Saturation-Luminance Color value to Red-Green-Blue Color value
 %
 %Usage
 %       RGB = hsl2rgb(HSL)
 %
-%   converts HSL, a M [x N] x 3 color matrix with values between 0 and 1
-%   into RGB, a M [x N] X 3 color matrix with values between 0 and 1
+%   converts HSL, a M X 3 color matrix with values between 0 and 1
+%   into RGB, a M X 3 color matrix with values between 0 and 1
 %
 %See also rgb2hsl, rgb2hsv, hsv2rgb
-
-% (C) Vladimir Bychkovsky, June 2008
-% written using: 
-% - an implementation by Suresh E Joel, April 26,2003
-% - Wikipedia: http://en.wikipedia.org/wiki/HSL_and_HSV
-
-hsl=reshape(hsl_in, [], 3);
-
-H=hsl(:,1);
-S=hsl(:,2);
-L=hsl(:,3);
-
-lowLidx=L < (1/2);
-q=(L .* (1+S) ).*lowLidx + (L+S-(L.*S)).*(~lowLidx);
-p=2*L - q;
-hk=H; % this is already divided by 360
-
-t=zeros([length(H), 3]); % 1=R, 2=B, 3=G
-t(:,1)=hk+1/3;
-t(:,2)=hk;
-t(:,3)=hk-1/3;
-
-underidx=t < 0;
-overidx=t > 1;
-t=t+underidx - overidx;
-    
-range1=t < (1/6);
-range2=(t >= (1/6) & t < (1/2));
-range3=(t >= (1/2) & t < (2/3));
-range4= t >= (2/3);
-
-% replicate matricies (one per color) to make the final expression simpler
-P=repmat(p, [1,3]);
-Q=repmat(q, [1,3]);
-rgb_c= (P + ((Q-P).*6.*t)).*range1 + ...
-        Q.*range2 + ...
-        (P + ((Q-P).*6.*(2/3 - t))).*range3 + ...
-        P.*range4;
-       
-rgb_c=round(rgb_c.*10000)./10000; 
-rgb=reshape(rgb_c, size(hsl_in));
+%Suresh E Joel, April 26,2003
+if nargin<1,
+    error('Too few arguements for hsl2rgb');
+    return;
+elseif nargin>1,
+    error('Too many arguements for hsl2rgb');
+    return;
+end;
+if max(max(hsl))>1 | min(min(hsl))<0,
+    error('HSL values have to be between 0 and 1');
+    return;
+end;
+for i=1:size(hsl,1),
+    if hsl(i,2)==0,%when sat is 0
+        rgb(i,1:3)=hsl(i,3);% all values are same as luminance
+    end;
+    if hsl(i,3)<0.5,
+        temp2=hsl(i,3)*(1+hsl(i,2));
+    else
+        temp2=hsl(i,3)+hsl(i,2)-hsl(i,3)*hsl(i,2);
+    end;
+    temp1=2*hsl(i,3)-temp2;
+    temp3(1)=hsl(i,1)+1/3;
+    temp3(2)=hsl(i,1);
+    temp3(3)=hsl(i,1)-1/3;
+    for j=1:3,
+        if temp3(j)>1, 
+            temp3(j)=temp3(j)-1; 
+        elseif temp3(j)<0, 
+            temp3(j)=temp3(j)+1; 
+        end;
+        if 6*temp3(j)<1,
+            rgb(i,j)=temp1+(temp2-temp1)*6*temp3(j);
+        elseif 2*temp3(j)<1,
+            rgb(i,j)=temp2;
+        elseif 3*temp3(j)<2,
+            rgb(i,j)=temp1+(temp2-temp1)*(2/3-temp3(j))*6;
+        else
+            rgb(i,j)=temp1;
+        end;
+    end;
+end;
+rgb=round(rgb.*100000)./100000; %Sometimes the result is 1+eps instead of 1 or 0-eps instead of 0 ... so to get rid of this I am rounding to 5 decimal places)
