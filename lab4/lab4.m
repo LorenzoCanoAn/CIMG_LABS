@@ -1,6 +1,7 @@
+addpath("./rgb_hsl");
+addpath("./functions");
 %% PARAMETERS
 inputFolder = "data/chapel/";
-addpath("./rgb_hsl")
 
 %% LOADING
 loadManager = imgScanner(inputFolder);
@@ -11,56 +12,48 @@ for i = 1:256
     w(i) = weight_pixel(i);
 end
 
-%% Trial with own pictures
-inputFolder = "data/casaC/";
-addpath("./rgb_hsl")
+%% Lienarize images
+lambda=20;
+downSampling=200;
 
-% LOADING
-loadManager = imgScanner(inputFolder);
+[~, nImages] = size(loadManager.img);
+[g] = get_cameraResponse(loadManager.img, nImages, loadManager.obt,w, lambda, downSampling);
+figure; hold on
+plot(g{1},'Color','r');
+plot(g{2},'Color','g');
+plot(g{3},'Color','b');
 
-% Weighting function
-w = ones(1,256);
-for i = 1:256
-    w(i) = weight_pixel(i);
-end
+%% Obtain radiance map
+radianceMap = hdrRadiance(loadManager, g,w);
+figure;
+xyz_image = rgb2hsv(radianceMap);
+imagesc(xyz_image(:,:,3));
+title("Radiance map");
 
-%
-hdr(loadManager,w);    
+%% GLOBAL TONE MAPPING
+delta=0.002;
+a=0.18;
+L_white=inf;
 
-%% HDR IMAGING
-function hdr(loadManager,w)
-
-    %% Lienarize images
-    [~, nImages] = size(loadManager.img);
-    [g] = get_cameraResponse(loadManager.img, nImages, loadManager.obt,w, 20, 200);
-    figure;
-    plot(g{1},'Color','r');
-    hold on
-    plot(g{2},'Color','g');
-    plot(g{3},'Color','b');
-    %% Obtain radiance map
-    radianceMap = hdrRadiance(loadManager, g,w);
-    figure;
-    xyz_image = rgb2xyz(radianceMap);
-    imagesc(xyz_image(:,:,2));
-    title("Radiance map");
-
-
-
-    %% GLOBAL TONE MAPPING
-    globalTone = global_tone_mapping(radianceMap,0.00005,0.5);
-    figure;
-    imshow(imadjust(globalTone,[],[],0.5));
-    imshow(lin2rgb(globalTone));
-    title("Global tone mapping");
+globalTone = global_tone_mapping(radianceMap,delta,a,L_white);
+figure;
+imshow(imadjust(globalTone,[],[],0.5));
+filename=strcat("l_d",num2str(delta),"a",num2str(a),"l",num2str(L_white),".jpg");
+imwrite(imadjust(globalTone,[],[],0.5),strcat("gm/",filename));
+title("Global tone mapping");
 
 %% LOCAL TONE MAPPING
-    sigmas=0.4;sigmar=10;dr=3;
-    localTone = local_tone_mapping(radianceMap,sigmas,sigmar,dr);
-    figure;
-    %imshow(imadjust(localTone,[],[],0.5));
-    imshow(lin2rgb(localTone));
-    title("Local tone mapping");
-    
-end
+filter_sigma=2.0;filter_radius=20;dR=3;
+localTone = local_tone_mapping(radianceMap,filter_sigma,filter_radius,dR);
+figure;
+imshow(imadjust(localTone,[],[],0.45));
+title("Local tone mapping");
+
+    % This function is only for showing what happens with no bilateral
+    % filtering
+locNav = local_tone_mapping_naive(radianceMap,dR);
+figure;
+imshow(imadjust(locNav,[],[],0.45));
+title("Local tone mapping naive");
+
 
