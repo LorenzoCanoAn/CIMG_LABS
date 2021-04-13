@@ -1,4 +1,4 @@
-addpath("./rgb_hsl");
+addpath("./functions/rgb_hsl");
 addpath("./functions");
 %% PARAMETERS
 inputFolder = "data/chapel/";
