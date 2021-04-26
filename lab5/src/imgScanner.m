@@ -1,7 +1,7 @@
 function result = imgScanner (rel)
 % This function takes a directory as an input. The elements inside the
 % directory are expected to be images, where the name of the image is
-% expected to be of teh form:
+% expected to be of the form:
 % {a}_{b}.{format}. So that a/b is the exposure time of the image. 
 
 % Given that, this function will return an array with the images, and an 
