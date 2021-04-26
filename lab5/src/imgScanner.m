@@ -17,12 +17,10 @@ function result = imgScanner (rel)
     s = size(temp);
     s = [s length(names)];
     result = zeros (s);
+   
     %% Divide the names in the elements indicating exposure time
-
-
-
     for i = 1 : length(names)
-        result(:,:,:,i) = imread(fullfile(rel,names{i}));
+        result(:,:,:,i) = rgb2hsv(imread(fullfile(rel,names{i})));
     end
 
 end
