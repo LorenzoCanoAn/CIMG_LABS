@@ -1,1 +1,1 @@
-imgScanner("../data/");
+imgScanner("../data/Section1_SeveralCaptures/bird/");

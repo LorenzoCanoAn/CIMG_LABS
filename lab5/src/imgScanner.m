@@ -7,20 +7,18 @@ function result = imgScanner (rel)
 % Given that, this function will return an array with the images, and an 
 % array with the exposure times, as members of the "result" object.
 
-%% Obtain elements inside directory
-ls = dir(rel);
-ls = ls(3:end);
-names = {ls.name};
 
-%% Divide the names in the elements indicating exposure time
-parsed_names = split(names,".");
+    %% Obtain elements inside directory
+    ls = dir(rel);
+    ls = ls(3:end);
+    names = {ls.name};
 
-result.obt = [];
-result.img = {};
+    %% Divide the names in the elements indicating exposure time
 
-for i = 1 : length(parsed_names)
-    result.obt = [result.obt str2double(parsed_names(1,i,1))/str2double(parsed_names(1,i,2))];
-    result.img{end+1} = imread(rel+names(i));
-end
+    result={};
+
+    for i = 1 : length(names)
+        result{end+1} = imread(rel+names(i));
+    end
 
 end
