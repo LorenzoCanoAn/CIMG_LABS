@@ -1,18 +1,18 @@
 folders = dir("../data/Section1_SeveralCaptures");
 folders = folders(3:end);
+b = 0.1;
 
 for folder = folders'
     disp(fullfile(folder.folder,folder.name))
     images = imgScanner(fullfile(folder.folder,folder.name));
-    [maxImg, minImg] = get_max_min(images);
-    globalLum = minImg;
-    directLum = maxImg-minImg;
+    [Lmax, Lmin] = get_max_min(images);
+    
+    c = (1+b)/2;
+    Lg = (Lmax-Lmin/b)/(c-c/b);
+    Ld = Lmax-c*Lg;
+    
     figure;
-    imshow(globalLum);
-    title("Global Ilumination");
-    figure; 
-    imshow(directLum);
-    title("Direct Ilumination");
+    montage({Lmax,Lg,Ld});
 end
 
 function [maxImg, minImg] = get_max_min(images)
