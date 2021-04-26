@@ -1,0 +1,1 @@
+imgScanner("../data/");
