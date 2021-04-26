@@ -13,7 +13,7 @@ function result = imgScanner (rel)
     ls = ls(3:end);
     names = {ls.name};
 
-    temp = imread(rel+names(1));
+    temp = imread(fullfile(rel,names{1}));
     s = size(temp);
     s = [s length(names)];
     result = zeros (s);
@@ -22,7 +22,7 @@ function result = imgScanner (rel)
 
 
     for i = 1 : length(names)
-        result[:,:,:,i] = imread(rel+names(i));
+        result(:,:,:,i) = imread(fullfile(rel,names{i}));
     end
 
 end
