@@ -41,9 +41,9 @@ interpolated = image;
 tic
 for i = 1:n_pixels
     level_1 = find_level_1(image,bool_image,p_i(i),p_j(i));
-%     level_2 = find_level_1(image,bool_image,p_i(i),p_j(i));
+    level_2 = find_level_1(image,bool_image,p_i(i),p_j(i));
 %     level_3 = find_level_1(image,bool_image,p_i(i),p_j(i));
-    interpolated(p_i(i),p_j(i),:)=level_1;
+    interpolated(p_i(i),p_j(i),:)=level_1*0.8+level_2*0.2;
 end
 disp(toc)
 end
@@ -103,7 +103,122 @@ end
 l1 = l1/count;
 end
 function l2=find_level_2(image,bool_mask,i_0,j_0)
-l2=0;
+[height,width] = size(bool_mask);
+count = 0;
+l2 = uint8(zeros(1,1,3));
+% Upper pixel
+for n = 2:10
+    i = i_0 - n;
+    if i <= 0
+        break
+    end
+    if bool_mask(i,j_0)
+        count = count + 1;
+        l2 = l2 + image(i,j_0,:);
+        break
+    end
+end
+% Lower pixel
+for n = 2:10
+    i = i_0 + n;
+    if i > height
+        break
+    end
+    if bool_mask(i,j_0)
+        count = count + 1;
+        l2 = l2 + image(i,j_0,:);
+        break
+    end
+end
+% Left pixel
+for n = 2:10
+    j = j_0 - n;
+    if j <= 0
+        break
+    end
+    if bool_mask(i_0,j)
+        count = count + 1;
+        l2 = l2 + image(i_0,j,:);
+        break
+    end
+end
+% Right pixel
+for n = 2:10
+    j = j_0 + n;
+    if j >= width
+        break
+    end
+    if bool_mask(i_0,j)
+        count = count + 1;
+        l2 = l2 + image(i_0,j,:);
+        break
+    end
+end
+% Upper Left pixel
+for n = 2:10
+    j = j_0 - n;
+    i = i_0 - n;
+    if j <= 0
+        break
+    end
+    if i <= 0
+        break
+    end
+    if bool_mask(i,j)
+        count = count + 1;
+        l2 = l2 + image(i,j,:);
+        break
+    end
+end
+% Lower Left pixel
+for n = 2:10
+    j = j_0 - n;
+    i = i_0 + n;
+    if j <= 0
+        break
+    end
+    if i > height
+        break
+    end
+    if bool_mask(i,j)
+        count = count + 1;
+        l2 = l2 + image(i,j,:);
+        break
+    end
+end
+% Lower Right pixel
+for n = 2:10
+    j = j_0 + n;
+    i = i_0 + n;
+    if j > width
+        break
+    end
+    if i > height
+        break
+    end
+    if bool_mask(i,j)
+        count = count + 1;
+        l2 = l2 + image(i,j,:);
+        break
+    end
+end
+% Upper Right pixel
+for n = 2:10
+    j = j_0 + n;
+    i = i_0 - n;
+    if j > width
+        break
+    end
+    if i <= 0
+        break
+    end
+    if bool_mask(i,j)
+        count = count + 1;
+        l2 = l2 + image(i,j,:);
+        break
+    end
+end
+l2 = l2/count;
 end
 function l3=find_level_3(image,bool_mask,i_0,j_0)
 l3=0;
