@@ -1,20 +1,40 @@
+clear params
 folders = dir("../data/Section1_SeveralCaptures");
+base_save_folder = "../results/sec1/";
+mkdir(base_save_folder);
 folders = folders(3:end);
-b = 0.1;
+global params
+params.b = 0.001;
 
-for folder = folders'
+for folder = folders(1)'
+    save_folder = strcat(base_save_folder,folder.name);
+    mkdir(save_folder);
     disp(fullfile(folder.folder,folder.name))
     images = folder_scanner(fullfile(folder.folder,folder.name));
     [Lmax, Lmin] = get_max_min(images);
-    
+    [Lg,Ld] = decompose(Lmin,Lmax);
+    imwrite(Lmax,strcat(save_folder,"/Lmax.jpg"));
+    imwrite(Lmin,strcat(save_folder,"/Lmin.jpg"));
+    imwrite(Lg,strcat(save_folder,"/Lg.jpg"));
+    imwrite(Ld,strcat(save_folder,"/Ld.jpg"));
+    figure;
+    montage({Lg,Ld});
+end
+
+function [Lg,Ld] = decompose(Lmin,Lmax)
+    global params
+    b = params.b;
     c = (1+b)/2;
     Lg = (Lmax-Lmin/b)/(c-c/b);
     Ld = Lmax-c*Lg;
-    
-    figure;
-    montage({Lmax,Lg,Ld});
 end
-
+% function [Lg,Ld] = decompose(Lmin,Lmax)
+%     global params
+%     b = params.b;
+%     c = (1+b)/2;
+%     Lg = (Lmax*b-Lmin)/(c-b*c);
+%     Ld = Lmax-c*Lg;
+% end
 function [maxImg, minImg] = get_max_min(images)
 [~,iMax] = max(images(:,:,3,:),[],4);
 [~,iMin] = min(images(:,:,3,:),[],4);
@@ -37,7 +57,7 @@ minImg = hsv2rgb(reshape(minImg,height,width,channels));
 end
 
 function result = folder_scanner (rel)
-%% Obtain elements inside directory
+% Obtain images inside directory and 
 ls = dir(rel);
 ls = ls(3:end);
 names = {ls.name};
@@ -47,7 +67,6 @@ s = size(temp);
 s = [s length(names)];
 result = zeros (s);
 
-%% Divide the names in the elements indicating exposure time
 for i = 1 : length(names)
     result(:,:,:,i) = rgb2hsv(imread(fullfile(rel,names{i})));
 end
