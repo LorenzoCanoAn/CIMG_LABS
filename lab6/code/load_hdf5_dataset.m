@@ -6,7 +6,7 @@ confocal = h5read(fname, '/isConfocal');
 
 
 dataset = struct;
-
+dataset.isConfocal = confocal;
 
 % spadOrigin: where the SPAD device is placed, faced towards the relay wall
 % spadPositions: SPAD measurement locations on the relay wall
