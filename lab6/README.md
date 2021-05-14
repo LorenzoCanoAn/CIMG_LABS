@@ -1,4 +1,4 @@
-#LAB 6
+# LAB 6
 
 This is the 6th Assignment from Computational Image Course
 
@@ -13,6 +13,7 @@ Use section 1 file to recreate the final results of the assignment.
 Previous execution of the section1.m file, the following variables must be set: 
 
 #5 params.data.folder --> The container folder where the data has been placed.
+
 #6 volshow_conf_path --> The relative path to the volshow config file (the name of the file must be included)
 
 ## Dataset nomenclature
@@ -26,7 +27,10 @@ The execution of the file will loop over every sample placed at the folder path 
 This will create three different voxel size versions of the scenario (8 , 16, 32).
 
 
-##Time consumption:
+## Time consumption:
+
 8 Voxels --> Elapsed time is 0.842385 seconds.
+
 16 Voxels --> Elapsed time is 6.743650 seconds.
+
 32 Voxels -->Elapsed time is 53.607872 seconds.
