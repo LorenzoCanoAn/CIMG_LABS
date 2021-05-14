@@ -11,13 +11,13 @@ load("volshow_config.mat");
 mkdir(params.saveFolder);
 files = dir(params.data.folder);
 files = files(3:end)';
-for file = files(2)
+for file = files
     %% LOAD DATA
     params.data.path = fullfile(params.data.folder,file.name);
     data = load_hdf5_dataset(params.data.path);
     [~,o_filename,~] = fileparts(file.name);
     disp(o_filename);
-    wxd = [32];
+    wxd = [8, 16, 32];
     for volSize = wxd
         disp(volSize)
         params.rec.disc_env_size = [1,1,1]*volSize;
@@ -38,11 +38,12 @@ for file = files(2)
         filename = strcat(o_filename,"_",num2str(volSize),"_nf",".jpg");
         filename = fullfile(params.saveFolder,filename);
         imwrite(getframe(gcf).cdata, filename)
-        hold on;
+        close all;
         volshow(G_lap,volshow_config);
         filename = strcat(o_filename,"_",num2str(volSize),"_f",".jpg");
         filename = fullfile(params.saveFolder,filename);
         imwrite(getframe(gcf).cdata, filename)
+        close all;
     end
 end
 
@@ -109,21 +110,21 @@ for i_v = 1:params.rec.disc_env_size(1) % loop over x
             d12s = d1s+d2s;
             d34s = d3s+d4s;
                         
-            t=reshape(repmat(d34s,[nlp,1]),1,[])+repmat(d12s,[1,nsp]);
+            t=reshape(repmat(d34s,[nlp,1]),1,[])+repmat(d12s,[1,nsp]); % this allows to avoid the use of for loops to iterate over relay positions
             
-            d2s_ = repmat(d2s,[1,nsp]);
-            d3s_ = reshape(repmat(d3s,[nlp,1]),1,[]);
-            cos1s_ = repmat(cos1s,[1,nsp]);
-            cos3s_ = reshape(repmat(cos3s,[nlp,1]),1,[]);
+            d2s_ = repmat(d2s,[1,nsp]); % this allows to avoid the use of for loops to iterate over relay positions
+            d3s_ = reshape(repmat(d3s,[nlp,1]),1,[]); % this allows to avoid the use of for loops to iterate over relay positions
+            cos1s_ = repmat(cos1s,[1,nsp]); % this allows to avoid the use of for loops to iterate over relay positionsb
+            cos3s_ = reshape(repmat(cos3s,[nlp,1]),1,[]); % this allows to avoid the use of for loops to iterate over relay positions
             
-            t = uint32((t-data.t0)/data.deltaT);
-            access_index = uint32(1:(nlp*nsp));
+            t = uint32((t-data.t0)/data.deltaT); % from distances to time
+            access_index = uint32(1:(nlp*nsp)); % creating absolute indexes to access the data in the data array.
             access_index = access_index + uint32(t-1) * (nlp*nsp);
-            h_info = data.data(access_index);
+            h_info = data.data(access_index); % raw data from the dataset
             
-            h_info = h_info .* d2s_.*d3s_ ./ cos1s_./cos3s_;
+            h_info = h_info .* d2s_.*d3s_ ./ cos1s_./cos3s_; % apply corrections
             
-            rec.G(i_v,j_v,k_v) = sum(h_info,'all');
+            rec.G(i_v,j_v,k_v) = sum(h_info,'all'); % generate value for the pixel
         end
     end
 end
@@ -138,20 +139,18 @@ global data
 rec.G = zeros(params.rec.disc_env_size);
 rec.G_c = gen_voxel_coords();
 s_s = size(data.spadPositions);
-nsp = s_s(1)*s_s(2);
+nsp = s_s(1)*s_s(2); % number of spad/laser positions
 
 v1s = reshape(reshape(data.laserOrigin, 1,1,3)-data.laserPositions,1,[],3); % vectors
-n1s = reshape(data.laserNormals,1,[],3);
-n3s = reshape(data.spadNormals,1,[],3);
+n1s = reshape(data.laserNormals,1,[],3); % normals to calculate the firts cosine component
+n3s = reshape(data.spadNormals,1,[],3);  % normals to calculate the second cosine component
 
-d1s = sqrt(sum(v1s.^2,3));
-v1s = v1s ./ d1s;
-cos1s = sum(n1s.*v1s,3);
+d1s = sqrt(sum(v1s.^2,3)); % distances 1
+v1s = v1s ./ d1s; % normalization
+cos1s = sum(n1s.*v1s,3); % cosine term of d1
 
-v4s = reshape(reshape(data.spadOrigin, 1,1,3) - data.spadPositions,1,[],3);
-d4s = sqrt(sum(v4s.^2,3));
-v4s = v4s ./ d4s;
-cos4s = abs(sum(n3s.*v4s,3));
+v4s = reshape(reshape(data.spadOrigin, 1,1,3) - data.spadPositions,1,[],3); % vectors 4 (from relay to spad)
+d4s = sqrt(sum(v4s.^2,3)); % distances 4 (from relay to spad)
 
 
 for i_v = 1:params.rec.disc_env_size(1) % loop over x
@@ -161,11 +160,11 @@ for i_v = 1:params.rec.disc_env_size(1) % loop over x
             
             v3s = reshape(x_v-data.spadPositions,1,[],3); % vectors
             
-            d2s = sqrt(sum(v3s.^2,3));
-            d3s = d2s;
+            d2s = sqrt(sum(v3s.^2,3)); % distances 2 (from wall to scene)
+            d3s = d2s; % confocal reco: distances 3 equal distances 2 (from scene to relay wall)
             
             v3s = v3s./d3s; % normalizaton
-            cos3s = sum(n3s.*v3s,3);
+            cos3s = sum(n3s.*v3s,3); % cosine term of d3
             cos3s(cos3s<0.5) = 0.5;
             t = d1s + d2s + d3s + d4s;
 
@@ -177,47 +176,6 @@ for i_v = 1:params.rec.disc_env_size(1) % loop over x
             
             rec.G(i_v,j_v,k_v) = sum(h_info,'all');
 
-        end
-    end
-end
-end
-
-
-function rec_norm_mod()
-
-global params
-global rec
-global data
-
-rec.G = zeros(params.rec.disc_env_size);
-rec.G_c = gen_voxel_coords();
-s_p_s = size(data.spadPositions);
-l_p_s = size(data.laserPositions);
-
-for i_v = 1:params.rec.disc_env_size(1) % loop over x
-    for j_v = 1:params.rec.disc_env_size(1) % loop over y
-        for k_v = 1:params.rec.disc_env_size(1) % loop over z
-            
-            x_v = reshape(rec.G_c(i_v,j_v,k_v,:),[3,1]);
-            
-            for i_l = 1:l_p_s(1)
-                for j_l = 1:l_p_s(2)
-                    x_l = reshape(data.laserPositions(i_l,j_l,:),[3,1]);
-                    for i_s = 1:s_p_s(1)
-                        for j_s = 1:s_p_s(2)
-                            x_s = reshape(data.spadPositions(i_s,j_s,:),[3,1]);
-                            d1 = sqrt(sum((data.laserOrigin - x_l).^2));
-                            d2 = sqrt(sum((x_l-x_v).^2));
-                            d3 = sqrt(sum((x_v - x_s).^2));
-                            d4 = sqrt(sum((x_s - data.spadOrigin).^2));
-                            t = (d1+d2+d3+d4);
-                            
-                            t = uint32((t - data.t0)/data.deltaT);
-                            rec.G(i_v,j_v,k_v) = rec.G(i_v,j_v,k_v) + data.data(i_l,j_l,i_s,j_s,t);
-                        end
-                    end
-                end
-            end
         end
     end
 end
