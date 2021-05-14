@@ -11,13 +11,13 @@ load("volshow_config.mat");
 mkdir(params.saveFolder);
 files = dir(params.data.folder);
 files = files(3:end)';
-for file = files
+for file = files(6:end)
     %% LOAD DATA
     params.data.path = fullfile(params.data.folder,file.name);
     data = load_hdf5_dataset(params.data.path);
     [~,o_filename,~] = fileparts(file.name);
     disp(o_filename);
-    wxd = [8, 16, 32];
+    wxd = [8, 16,32];
     for volSize = wxd
         disp(volSize)
         params.rec.disc_env_size = [1,1,1]*volSize;
@@ -25,9 +25,9 @@ for file = files
         %% RECONSTRUCTION
         tic
         if data.isConfocal
-            confocal_rec_fast()
+            confocal_rec_fast(volSize)
         else
-            normal_rec_fast() 
+            normal_rec_fast(volSize) 
         end
         toc
         %% Laplacian filter
@@ -45,6 +45,7 @@ for file = files
         imwrite(getframe(gcf).cdata, filename)
         close all;
     end
+    break
 end
 
 %% Functions
@@ -71,7 +72,7 @@ function vox_coords = gen_voxel_coords()
     end
 end
 
-function normal_rec_fast()
+function normal_rec_fast(volSize)
 
 global params
 global rec
@@ -87,12 +88,26 @@ nlp = l_s(1)*l_s(2);
 d1s = sqrt(sum(reshape(data.laserPositions - reshape(data.laserOrigin, 1,1,3),1,[],3).^2,3));
 d4s = sqrt(sum(reshape(data.spadPositions - reshape(data.spadOrigin, 1,1,3),1,[],3).^2,3));
 
+ 
+vr = reshape(data.spadPositions - reshape(data.spadOrigin, 1,1,3),s_s(1)*s_s(2),3);
+
+zer = [0,-1,0];
+
 
 
 for i_v = 1:params.rec.disc_env_size(1) % loop over x
     for j_v = 1:params.rec.disc_env_size(1) % loop over y
         for k_v = 1:params.rec.disc_env_size(1) % loop over z
             x_v = reshape(rec.G_c(i_v,j_v,k_v,:),[1,1,3]);
+            
+            x_vs =  reshape(data.spadPositions(i_v,j_v,:) - x_v,[1,3]);
+            s_v = reshape(data.spadPositions(i_v,j_v,:) - reshape(data.spadOrigin,[1,1,3]),[1,3]);
+            l_v = reshape(data.laserPositions(i_v,j_v,:) - reshape(data.laserOrigin,[1,1,3]),[1,3]);
+            l_vs = reshape(data.laserPositions(i_v,j_v,:) - x_v,[1,3]);
+            
+            cos_s = abs(max(min(dot(x_vs,zer)/(norm(zer)*norm(x_vs)),1),-1));
+            cos_l = 1-abs(max(min(dot(zer,l_vs)/(norm(zer)*norm(l_vs)),1),-1));
+            
             
             d2s = sqrt(sum(reshape(data.laserPositions - x_v,1,[],3).^2,3));
             d3s = sqrt(sum(reshape(data.spadPositions - x_v,1,[],3).^2,3));
@@ -101,19 +116,19 @@ for i_v = 1:params.rec.disc_env_size(1) % loop over x
             d34s = d3s+d4s;
             t = zeros(1,nsp*nlp);
             for n = 1:nsp
-                t((1+(n-1)*nlp):(n*nlp))=ones(1,nlp)*d34s(n)+d12s;
+                t((1+(n-1)*nlp):(n*nlp))=(ones(1,nlp)*d34s(n)+d12s);
             end
             t = uint32((t-data.t0)/data.deltaT);
             access_index = uint32(1:(nlp*nsp));
             access_index = access_index + uint32(t-1) * (nlp*nsp);
-            rec.G(i_v,j_v,k_v) = sum(data.data(access_index),'all');
+            rec.G(i_v,j_v,k_v) = sum(data.data(access_index),'all')*(1/(pow2(cos_s)));%*(1/d3s(i_v*j_v)/max(d3s))));
         end
     end
 end
 
 end
 
-function confocal_rec_fast()
+function confocal_rec_fast(volSize)
 global params
 global rec
 global data
