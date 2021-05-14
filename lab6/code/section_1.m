@@ -6,18 +6,18 @@ params.data.folder = "../data";
 params.data.file = "Z_d=0.5_l=[1x1]_s=[256x256].hdf5";
 params.data.path = fullfile(params.data.folder,params.data.file);
 params.rec.disc_env_size = [1,1,1]*16;
-params.saveFolder = "../images_";
+params.saveFolder = "../images_comp";
 load("volshow_config.mat");
 mkdir(params.saveFolder);
 files = dir(params.data.folder);
 files = files(3:end)';
-for file = files(6:end)
+for file = files(2)
     %% LOAD DATA
     params.data.path = fullfile(params.data.folder,file.name);
     data = load_hdf5_dataset(params.data.path);
     [~,o_filename,~] = fileparts(file.name);
     disp(o_filename);
-    wxd = [8, 16,32];
+    wxd = [32];
     for volSize = wxd
         disp(volSize)
         params.rec.disc_env_size = [1,1,1]*volSize;
@@ -25,9 +25,9 @@ for file = files(6:end)
         %% RECONSTRUCTION
         tic
         if data.isConfocal
-            confocal_rec_fast(volSize)
+            confocal_rec_fast()
         else
-            normal_rec_fast(volSize) 
+            normal_rec_fast() 
         end
         toc
         %% Laplacian filter
@@ -38,14 +38,12 @@ for file = files(6:end)
         filename = strcat(o_filename,"_",num2str(volSize),"_nf",".jpg");
         filename = fullfile(params.saveFolder,filename);
         imwrite(getframe(gcf).cdata, filename)
-        close all;
+        hold on;
         volshow(G_lap,volshow_config);
         filename = strcat(o_filename,"_",num2str(volSize),"_f",".jpg");
         filename = fullfile(params.saveFolder,filename);
         imwrite(getframe(gcf).cdata, filename)
-        close all;
     end
-    break
 end
 
 %% Functions
@@ -72,7 +70,7 @@ function vox_coords = gen_voxel_coords()
     end
 end
 
-function normal_rec_fast(volSize)
+function normal_rec_fast()
 
 global params
 global rec
@@ -85,14 +83,14 @@ nsp = s_s(1)*s_s(2);
 l_s = size(data.laserPositions);
 nlp = l_s(1)*l_s(2);
 
-d1s = sqrt(sum(reshape(data.laserPositions - reshape(data.laserOrigin, 1,1,3),1,[],3).^2,3));
+n1s = reshape(data.laserNormals,1,[],3);
+n3s = reshape(data.spadNormals,1,[],3);
+
+v1s = reshape(reshape(data.laserOrigin, 1,1,3)-data.laserPositions,1,[],3);
+d1s = sqrt(sum(v1s.^2,3));
+v1s = v1s ./ d1s;
+cos1s = abs(sum(n1s.*v1s,3));
 d4s = sqrt(sum(reshape(data.spadPositions - reshape(data.spadOrigin, 1,1,3),1,[],3).^2,3));
-
- 
-vr = reshape(data.spadPositions - reshape(data.spadOrigin, 1,1,3),s_s(1)*s_s(2),3);
-
-zer = [0,-1,0];
-
 
 
 for i_v = 1:params.rec.disc_env_size(1) % loop over x
@@ -100,35 +98,39 @@ for i_v = 1:params.rec.disc_env_size(1) % loop over x
         for k_v = 1:params.rec.disc_env_size(1) % loop over z
             x_v = reshape(rec.G_c(i_v,j_v,k_v,:),[1,1,3]);
             
-            x_vs =  reshape(data.spadPositions(i_v,j_v,:) - x_v,[1,3]);
-            s_v = reshape(data.spadPositions(i_v,j_v,:) - reshape(data.spadOrigin,[1,1,3]),[1,3]);
-            l_v = reshape(data.laserPositions(i_v,j_v,:) - reshape(data.laserOrigin,[1,1,3]),[1,3]);
-            l_vs = reshape(data.laserPositions(i_v,j_v,:) - x_v,[1,3]);
-            
-            cos_s = abs(max(min(dot(x_vs,zer)/(norm(zer)*norm(x_vs)),1),-1));
-            cos_l = 1-abs(max(min(dot(zer,l_vs)/(norm(zer)*norm(l_vs)),1),-1));
-            
-            
             d2s = sqrt(sum(reshape(data.laserPositions - x_v,1,[],3).^2,3));
-            d3s = sqrt(sum(reshape(data.spadPositions - x_v,1,[],3).^2,3));
             
+            v3s = reshape(x_v-data.spadPositions,1,[],3);
+            
+            d3s = sqrt(sum(v3s.^2,3));
+            v3s = v3s ./ d3s;
+            cos3s = abs(sum(n3s.*v3s,3));
+            cos3s(cos3s<0.5) = 0.5;
             d12s = d1s+d2s;
             d34s = d3s+d4s;
-            t = zeros(1,nsp*nlp);
-            for n = 1:nsp
-                t((1+(n-1)*nlp):(n*nlp))=(ones(1,nlp)*d34s(n)+d12s);
-            end
+                        
+            t=reshape(repmat(d34s,[nlp,1]),1,[])+repmat(d12s,[1,nsp]);
+            
+            d2s_ = repmat(d2s,[1,nsp]);
+            d3s_ = reshape(repmat(d3s,[nlp,1]),1,[]);
+            cos1s_ = repmat(cos1s,[1,nsp]);
+            cos3s_ = reshape(repmat(cos3s,[nlp,1]),1,[]);
+            
             t = uint32((t-data.t0)/data.deltaT);
             access_index = uint32(1:(nlp*nsp));
             access_index = access_index + uint32(t-1) * (nlp*nsp);
-            rec.G(i_v,j_v,k_v) = sum(data.data(access_index),'all')*(1/(pow2(cos_s)));%*(1/d3s(i_v*j_v)/max(d3s))));
+            h_info = data.data(access_index);
+            
+            h_info = h_info .* d2s_.*d3s_ ./ cos1s_./cos3s_;
+            
+            rec.G(i_v,j_v,k_v) = sum(h_info,'all');
         end
     end
 end
 
 end
 
-function confocal_rec_fast(volSize)
+function confocal_rec_fast()
 global params
 global rec
 global data
@@ -138,104 +140,48 @@ rec.G_c = gen_voxel_coords();
 s_s = size(data.spadPositions);
 nsp = s_s(1)*s_s(2);
 
-d1s = sqrt(sum(reshape(data.laserPositions - reshape(data.laserOrigin, 1,1,3),1,[],3).^2,3));
-d4s = sqrt(sum(reshape(data.spadPositions - reshape(data.spadOrigin, 1,1,3),1,[],3).^2,3));
+v1s = reshape(reshape(data.laserOrigin, 1,1,3)-data.laserPositions,1,[],3); % vectors
+n1s = reshape(data.laserNormals,1,[],3);
+n3s = reshape(data.spadNormals,1,[],3);
+
+d1s = sqrt(sum(v1s.^2,3));
+v1s = v1s ./ d1s;
+cos1s = sum(n1s.*v1s,3);
+
+v4s = reshape(reshape(data.spadOrigin, 1,1,3) - data.spadPositions,1,[],3);
+d4s = sqrt(sum(v4s.^2,3));
+v4s = v4s ./ d4s;
+cos4s = abs(sum(n3s.*v4s,3));
+
 
 for i_v = 1:params.rec.disc_env_size(1) % loop over x
     for j_v = 1:params.rec.disc_env_size(2) % loop over y
         for k_v = 1:params.rec.disc_env_size(3) % loop over z
             x_v = reshape(rec.G_c(i_v,j_v,k_v,:),[1,1,3]);    
             
-            d2s = sqrt(sum(reshape(data.spadPositions - x_v,1,[],3).^2,3));
+            v3s = reshape(x_v-data.spadPositions,1,[],3); % vectors
+            
+            d2s = sqrt(sum(v3s.^2,3));
             d3s = d2s;
             
+            v3s = v3s./d3s; % normalizaton
+            cos3s = sum(n3s.*v3s,3);
+            cos3s(cos3s<0.5) = 0.5;
             t = d1s + d2s + d3s + d4s;
 
             t = uint32((t-data.t0)/data.deltaT);
             access_index = uint32(1:(nsp));
             access_index = access_index + uint32(t-1) * (nsp);
-            rec.G(i_v,j_v,k_v) = sum(data.data(access_index),'all');
+            h_info=data.data(access_index);
+            h_info = h_info .* d2s.*d3s./ cos1s./cos3s;
+            
+            rec.G(i_v,j_v,k_v) = sum(h_info,'all');
 
         end
     end
 end
-
 end
 
-function confocal_rec()
-global params
-global rec
-global data
-
-rec.G = zeros(params.rec.disc_env_size);
-rec.G_c = gen_voxel_coords();
-n_p_ls = size(data.spadPositions);            
-
-for i_v = 1:params.rec.disc_env_size(1) % loop over x
-    for j_v = 1:params.rec.disc_env_size(2) % loop over y
-        for k_v = 1:params.rec.disc_env_size(3) % loop over z
-            x_v = reshape(rec.G_c(i_v,j_v,k_v,:),[3,1]);    
-            
-            for i_ls = 1:n_p_ls (1)
-                for j_ls = 1:n_p_ls (2)
-                            x_ls = reshape(data.spadPositions(i_ls,j_ls,:),[3,1]);
-                            
-                            d1 = sqrt(sum((data.laserOrigin - x_ls).^2));
-                            d2 = sqrt(sum((x_ls-x_v).^2));
-                            d3 = d2;
-                            d4 = sqrt(sum((x_ls - data.spadOrigin).^2));
-                            t = (d1+d2+d3+d4);
-                            
-                            t = uint32((t - data.t0)/data.deltaT);
-                            rec.G(i_v,j_v,k_v) = rec.G(i_v,j_v,k_v) + data.data(i_ls,j_ls,t);
-                end
-            end
-        end
-    end
-end
-
-end
-
-function normal_rec()
-
-global params
-global rec
-global data
-
-rec.G = zeros(params.rec.disc_env_size);
-rec.G_c = gen_voxel_coords();
-s_p_s = size(data.spadPositions);
-l_p_s = size(data.laserPositions);
-
-for i_v = 1:params.rec.disc_env_size(1) % loop over x
-    for j_v = 1:params.rec.disc_env_size(1) % loop over y
-        for k_v = 1:params.rec.disc_env_size(1) % loop over z
-            
-            x_v = reshape(rec.G_c(i_v,j_v,k_v,:),[3,1]);
-            
-            for i_l = 1:l_p_s(1)
-                for j_l = 1:l_p_s(2)
-                    x_l = reshape(data.laserPositions(i_l,j_l,:),[1,1,3]);
-                    for i_s = 1:s_p_s(1)
-                        for j_s = 1:s_p_s(2)
-                            x_s = reshape(data.spadPositions(i_s,j_s,:),[3,1]);
-                            d1 = sqrt(sum((data.laserOrigin - x_l).^2));
-                            d2 = sqrt(sum((x_l-x_v).^2));
-                            d3 = sqrt(sum((x_v - x_s).^2));
-                            d4 = sqrt(sum((x_s - data.spadOrigin).^2));
-                            t = (d1+d2+d3+d4);
-                            
-                            t = uint32((t - data.t0)/data.deltaT);
-                            rec.G(i_v,j_v,k_v) = rec.G(i_v,j_v,k_v) + data.data(i_l,j_l,i_s,j_s,t);
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-end
 
 function rec_norm_mod()
 
